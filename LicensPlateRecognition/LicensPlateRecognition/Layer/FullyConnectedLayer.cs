@@ -6,15 +6,16 @@ namespace LicensPlateRecognition.Layer
 {
     class FullyConnectedLayer
     {
-        private double[,] weightMat;
-        private double[,] biasMat;
+        private double[,] layerMat { get; set; }
 
         public FullyConnectedLayer(int row, int column)
         {
             // column = number of neurons in next layer
-            // row = number of neurons in this layer
-            weightMat = new double[row, column];
-            biasMat = new double[row, column];
+            // row - 1 = number of neurons in this layer
+            // last row is for bias values
+            layerMat = new double[row, column];
+            
+            // TODO: Init layerMat with RandGaussNum
         }
     }
 }

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LicensPlateRecognition.Calc;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Text;
@@ -7,11 +8,16 @@ namespace LicensPlateRecognition.Network
 {
     class NeuralNetwork
     {
-        private ArrayList layerList = new ArrayList();
-
-        public NeuralNetwork()
+        static void Main(string[] args)
         {
-            // TODO: Create Network with different layers
+            RandomGaussNumberGen randNumGen = new RandomGaussNumberGen(0,1);
+
+            for(int i = 1; i < 20; i++)
+            {
+                Console.WriteLine(randNumGen.CreateRandomNum());
+            }
+
+            Console.ReadKey();
         }
 
         public void StoreNeuralNetwork()
