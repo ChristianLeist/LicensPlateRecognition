@@ -10,8 +10,10 @@ namespace LicensPlateRecognition.Network
     {
         static void Main(string[] args)
         {
-            FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
-            fullyConnectedLayer.InitLayerMat();
+            //FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
+            //fullyConnectedLayer.InitLayerMat();
+            InputLayer inputLayer = new InputLayer();
+            inputLayer.GetBitMapColorMatrix();
 
             Console.ReadKey();
         }

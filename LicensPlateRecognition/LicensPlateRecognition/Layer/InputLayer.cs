@@ -9,7 +9,7 @@ namespace LicensPlateRecognition.Layer
     {
         public Color[][] GetBitMapColorMatrix()
         {
-            string bitmapFilePath = @"..\Image\";
+            string bitmapFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Penguins.jpg";
             Bitmap b = new Bitmap(bitmapFilePath);
 
             int height = b.Height;
@@ -22,7 +22,9 @@ namespace LicensPlateRecognition.Layer
                 for (int j = 0; j < height; j++)
                 {
                     colorMatrix[i][j] = b.GetPixel(i, j);
+                    Console.Write(colorMatrix[i][j]);
                 }
+                Console.WriteLine();
             }
             return colorMatrix;
         }

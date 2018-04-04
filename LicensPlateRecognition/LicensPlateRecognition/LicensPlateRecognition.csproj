@@ -10,4 +10,8 @@
     <Folder Include="Image\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <PackageReference Include="System.Drawing.Common" Version="4.5.0-preview1-26216-02" />
+  </ItemGroup>
+
 </Project>
