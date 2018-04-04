@@ -1,4 +1,4 @@
-﻿using LicensPlateRecognition.Calc;
+﻿using LicensPlateRecognition.Layer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -10,12 +10,8 @@ namespace LicensPlateRecognition.Network
     {
         static void Main(string[] args)
         {
-            RandomGaussNumberGen randNumGen = new RandomGaussNumberGen(0,1);
-
-            for(int i = 1; i < 20; i++)
-            {
-                Console.WriteLine(randNumGen.CreateRandomNum());
-            }
+            FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
+            fullyConnectedLayer.InitLayerMat();
 
             Console.ReadKey();
         }
