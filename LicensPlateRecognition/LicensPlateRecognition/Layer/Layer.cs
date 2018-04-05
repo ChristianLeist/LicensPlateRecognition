@@ -4,11 +4,10 @@ using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
-    class OutputLayer : Layer
+    abstract class Layer
     {
-        public override void InitLayerMat()
-        {
-            // TODO
-        }
+        protected double[,] layerMat;
+
+        abstract public void InitLayerMat();
     }
 }

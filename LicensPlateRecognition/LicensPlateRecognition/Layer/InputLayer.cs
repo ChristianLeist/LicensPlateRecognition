@@ -5,11 +5,11 @@ using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
-    class InputLayer
+    class InputLayer : Layer
     {
         public Color[][] GetBitMapColorMatrix()
         {
-            string bitmapFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Penguins.jpg";
+            string bitmapFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
             Bitmap b = new Bitmap(bitmapFilePath);
 
             int height = b.Height;
@@ -22,11 +22,16 @@ namespace LicensPlateRecognition.Layer
                 for (int j = 0; j < height; j++)
                 {
                     colorMatrix[i][j] = b.GetPixel(i, j);
-                    Console.Write(colorMatrix[i][j]);
+                    Console.Write(b.GetPixel(i, j));
                 }
                 Console.WriteLine();
             }
             return colorMatrix;
+        }
+
+        public override void InitLayerMat()
+        {
+            // TODO
         }
     }
 }

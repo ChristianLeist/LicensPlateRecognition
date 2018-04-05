@@ -5,9 +5,8 @@ using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
-    class FullyConnectedLayer
+    class FullyConnectedLayer : Layer
     {
-        private double[,] layerMat;
         private int row, column;
         private RandomGaussNumberGen randNumGen;
 
@@ -18,18 +17,18 @@ namespace LicensPlateRecognition.Layer
             this.row = row + 1;
             // column = number of neurons in next layer
             this.column = column;
-            layerMat = new double[this.row, this.column];
+            this.layerMat = new double[this.row, this.column];
             this.randNumGen = new RandomGaussNumberGen(0, 1);
         }
 
-        public void InitLayerMat()
+        public override void InitLayerMat()
         {
-            for(int i = 0; i < row; i++)
+            for (int i = 0; i < row; i++)
             {
-                for(int j = 0; j < column; j++)
+                for (int j = 0; j < column; j++)
                 {
-                    layerMat[i,j] = this.randNumGen.CreateRandomNum();
-                    Console.Write(layerMat[i,j] + " ");
+                    this.layerMat[i, j] = this.randNumGen.CreateRandomNum();
+                    Console.Write(this.layerMat[i, j] + " ");
                 }
                 Console.WriteLine();
             }

@@ -4,8 +4,11 @@ using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
-    class PoolingLayer
+    class PoolingLayer : Layer
     {
-
+        public override void InitLayerMat()
+        {
+            // TODO
+        }
     }
 }

@@ -2,6 +2,7 @@
 using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace LicensPlateRecognition.Network
@@ -13,7 +14,8 @@ namespace LicensPlateRecognition.Network
             //FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
             //fullyConnectedLayer.InitLayerMat();
             InputLayer inputLayer = new InputLayer();
-            inputLayer.GetBitMapColorMatrix();
+            Color[][] colMat = inputLayer.GetBitMapColorMatrix();
+            Console.WriteLine(colMat[2][2]);
 
             Console.ReadKey();
         }
