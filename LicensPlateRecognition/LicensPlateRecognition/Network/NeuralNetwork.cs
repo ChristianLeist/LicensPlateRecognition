@@ -13,10 +13,13 @@ namespace LicensPlateRecognition.Network
         {
             //FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
             //fullyConnectedLayer.InitLayerMat();
-            InputLayer inputLayer = new InputLayer();
-            Color[][] colMat = inputLayer.GetBitMapColorMatrix();
-            Console.WriteLine(colMat[2][2]);
+            ConvolutionLayer convLayer = new ConvolutionLayer();
+            string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
+            Bitmap b = new Bitmap(bitmapFilePath);
+            b = convLayer.ZeroPadding(b, 1);
+            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\ImageLennaPadding.jpg");
 
+            Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
         }
 

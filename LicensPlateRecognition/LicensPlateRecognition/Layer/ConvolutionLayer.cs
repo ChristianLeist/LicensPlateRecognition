@@ -30,42 +30,46 @@ namespace LicensPlateRecognition.Layer
             }
         }
 
-        private Bitmap ZeroPadding(Bitmap img, int border)
+        public Bitmap ZeroPadding(Bitmap inputImage, int border)
         {
-            int w = img.Width;
-            int h = img.Height;
-            int wp = w + 2 * border;
-            int hp = h + 2 * border;
-            Bitmap ri = new Bitmap(wp, hp);
-            BitmapData rd = ri.LockBits(new Rectangle(0, 0, wp, hp),
-                ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-            BitmapData id = img.LockBits(new Rectangle(0, 0, w, h),
-                ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
-            int imgb = id.Stride * id.Height;
-            int borb = rd.Stride * rd.Height;
-            byte[] imga = new byte[imgb];
+            int width = inputImage.Width;
+            int heigth = inputImage.Height;
+
+            int padWidth = width + 2 * border;
+            int padHeigth = heigth + 2 * border;
+
+            Bitmap padImage = new Bitmap(padWidth, padHeigth);
+            BitmapData padImageData = padImage.LockBits(new Rectangle(0, 0, padWidth, padHeigth), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            BitmapData inputImageData = inputImage.LockBits(new Rectangle(0, 0, width, heigth), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            int inputImageByte = inputImageData.Stride * inputImageData.Height;
+            int borb = padImageData.Stride * padImageData.Height;
+            byte[] imga = new byte[inputImageByte];
             byte[] bora = new byte[borb];
+
             for (int i = 3; i < borb; i += 4)
             {
                 bora[i] = 255;
             }
-            Marshal.Copy(id.Scan0, imga, 0, imgb);
-            img.UnlockBits(id);
-            for (int y = 0; y < h; y++)
+            Marshal.Copy(inputImageData.Scan0, imga, 0, inputImageByte);
+            inputImage.UnlockBits(inputImageData);
+
+            for (int y = 0; y < heigth; y++)
             {
-                for (int x = 0; x < w; x++)
+                for (int x = 0; x < width; x++)
                 {
-                    int ip = y * id.Stride + x * 4;
-                    int rp = y * rd.Stride + x * 4;
+                    int ip = y * inputImageData.Stride + x * 4;
+                    int rp = y * padImageData.Stride + x * 4;
                     for (int i = 0; i < 3; i++)
                     {
-                        bora[(rd.Stride + 4) * border + rp + i] = imga[ip + i];
+                        bora[(padImageData.Stride + 4) * border + rp + i] = imga[ip + i];
                     }
                 }
             }
-            Marshal.Copy(bora, 0, rd.Scan0, borb);
-            ri.UnlockBits(rd);
-            return ri;
+            Marshal.Copy(bora, 0, padImageData.Scan0, borb);
+            padImage.UnlockBits(padImageData);
+
+            return padImage;
         }
 
         public override void InitLayerMat()
