@@ -43,30 +43,34 @@ namespace LicensPlateRecognition.Layer
             BitmapData inputImageData = inputImage.LockBits(new Rectangle(0, 0, width, heigth), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
             int inputImageByte = inputImageData.Stride * inputImageData.Height;
-            int borb = padImageData.Stride * padImageData.Height;
-            byte[] imga = new byte[inputImageByte];
-            byte[] bora = new byte[borb];
+            int padImageByte = padImageData.Stride * padImageData.Height;
+            byte[] inputImageArray = new byte[inputImageByte];
+            byte[] padImageArray = new byte[padImageByte];
 
-            for (int i = 3; i < borb; i += 4)
+            // alpha value init
+            for (int i = 3; i < padImageByte; i += 4)
             {
-                bora[i] = 255;
+                padImageArray[i] = 255;
             }
-            Marshal.Copy(inputImageData.Scan0, imga, 0, inputImageByte);
+            // Copy image values into array
+            Marshal.Copy(inputImageData.Scan0, inputImageArray, 0, inputImageByte);
             inputImage.UnlockBits(inputImageData);
 
+            // Create image with zero padded borders
             for (int y = 0; y < heigth; y++)
             {
                 for (int x = 0; x < width; x++)
                 {
-                    int ip = y * inputImageData.Stride + x * 4;
-                    int rp = y * padImageData.Stride + x * 4;
+                    int inputImgPixel = y * inputImageData.Stride + x * 4;
+                    int padImgPixel = y * padImageData.Stride + x * 4;
                     for (int i = 0; i < 3; i++)
                     {
-                        bora[(padImageData.Stride + 4) * border + rp + i] = imga[ip + i];
+                        padImageArray[(padImageData.Stride + 4) * border + padImgPixel + i] = inputImageArray[inputImgPixel + i];
                     }
                 }
             }
-            Marshal.Copy(bora, 0, padImageData.Scan0, borb);
+            // Copy array values into padded image
+            Marshal.Copy(padImageArray, 0, padImageData.Scan0, padImageByte);
             padImage.UnlockBits(padImageData);
 
             return padImage;

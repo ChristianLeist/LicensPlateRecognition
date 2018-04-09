@@ -17,7 +17,7 @@ namespace LicensPlateRecognition.Network
             string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
             Bitmap b = new Bitmap(bitmapFilePath);
             b = convLayer.ZeroPadding(b, 1);
-            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\ImageLennaPadding.jpg");
+            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaPadding.jpg");
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
