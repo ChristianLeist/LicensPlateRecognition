@@ -14,20 +14,80 @@ namespace LicensPlateRecognition.Layer
 
         public ConvolutionLayer()
         {
-            this.stride = 2;
-            // Edge detection filter
-            this.filterMat = new int[3, 3] { { -1, -1, -1 }, { -1, 8, -1 }, { -1, -1, -1 } };
+            this.stride = 1;
+            // sharpen filter
+            this.filterMat = new int[3, 3] { { 0, -1, 0 }, { -1, 5, -1 }, { 0, -1, 0 } };
         }
 
-        public void Convolution(Bitmap inputBitmap)
+        public Bitmap Convolution(Bitmap inputBitmap)
         {
-            for (int i = 0; i < inputBitmap.Height; i++)
+            // Zero padding border formular with FxF filter: (F-1)/2
+            int f = (int)Math.Sqrt(this.filterMat.Length);
+            int border = (int)(f - 1) / 2;
+            Bitmap padInputBitmap = ZeroPadding(inputBitmap, border);
+
+            int width = padInputBitmap.Width;
+            int heigth = padInputBitmap.Height;
+
+            int outWidth = inputBitmap.Width / this.stride;
+            int outHeigth = inputBitmap.Height / this.stride;
+
+            Bitmap outImage = new Bitmap(outWidth, outHeigth);
+            BitmapData outImageData = outImage.LockBits(new Rectangle(0, 0, outWidth, outHeigth), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+            BitmapData inputImageData = padInputBitmap.LockBits(new Rectangle(0, 0, width, heigth), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+
+            int inputImageByte = inputImageData.Stride * inputImageData.Height;
+            int outImageByte = outImageData.Stride * outImageData.Height;
+            byte[] inputImageArray = new byte[inputImageByte];
+            byte[] outImageArray = new byte[outImageByte];
+
+            // alpha value init
+            for (int i = 3; i < outImageByte; i += 4)
             {
-                for (int j = 0; j < inputBitmap.Width; j++)
+                outImageArray[i] = 255;
+            }
+            // Copy image values into array
+            Marshal.Copy(inputImageData.Scan0, inputImageArray, 0, inputImageByte);
+            padInputBitmap.UnlockBits(inputImageData);
+
+            // Do convolution
+            for (int y = 0; y < outHeigth; y++)
+            {
+                for (int x = 0; x < outWidth; x++)
                 {
-                    // TODO: convolution
+                    int inputImgPixel = y * inputImageData.Stride + x * 4;
+                    int outImgPixel = y * outImageData.Stride + x * 4;
+                    for (int i = 0; i < 3; i++)
+                    {
+                        // Filter loop
+                        int convVal = 0;
+                        for (int h = 0; h < f; h++)
+                        {
+                            for (int w = 0; w < f; w++)
+                            {
+
+                                convVal += filterMat[h, w] * inputImageArray[inputImageData.Stride * h + 4 * w + inputImgPixel + i];
+                            }
+                        }
+                        if (convVal > 255)
+                        {
+                            convVal = 255;
+                        }
+                        else if (convVal < 0)
+                        {
+                            convVal = 0;
+                        }
+
+                        outImageArray[outImgPixel + i] = (byte)convVal;
+                    }
+
                 }
             }
+            // Copy array values into output image
+            Marshal.Copy(outImageArray, 0, outImageData.Scan0, outImageByte);
+            outImage.UnlockBits(outImageData);
+
+            return outImage;
         }
 
         public Bitmap ZeroPadding(Bitmap inputImage, int border)

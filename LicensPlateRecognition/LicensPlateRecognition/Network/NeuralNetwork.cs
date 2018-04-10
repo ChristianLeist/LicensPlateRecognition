@@ -16,11 +16,11 @@ namespace LicensPlateRecognition.Network
             ConvolutionLayer convLayer = new ConvolutionLayer();
             string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
             Bitmap b = new Bitmap(bitmapFilePath);
-            b = convLayer.ZeroPadding(b, 1);
-            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaPadding.jpg");
+            b = convLayer.Convolution(b);
+            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaFilter.jpg");
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+            //Console.WriteLine("Press any key to continue...");
+            //Console.ReadKey();
         }
 
         public void StoreNeuralNetwork()
