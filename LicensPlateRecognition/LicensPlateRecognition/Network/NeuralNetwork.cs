@@ -11,13 +11,18 @@ namespace LicensPlateRecognition.Network
     {
         static void Main(string[] args)
         {
+            string bitmapFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
+            Bitmap b = new Bitmap(bitmapFilePath);
+
+            InputLayer inputLayer = new InputLayer(500, 500);
+            inputLayer.LoadImage(b);
+
+            //ConvolutionLayer convLayer = new ConvolutionLayer();
+            //b = convLayer.Convolution(b);
+            //b.Save(@"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaFilter.jpg");
+
             //FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
             //fullyConnectedLayer.InitLayerMat();
-            ConvolutionLayer convLayer = new ConvolutionLayer();
-            string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
-            Bitmap b = new Bitmap(bitmapFilePath);
-            b = convLayer.Convolution(b);
-            b.Save(@"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaFilter.jpg");
 
             //Console.WriteLine("Press any key to continue...");
             //Console.ReadKey();
