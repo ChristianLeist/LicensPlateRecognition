@@ -1,4 +1,5 @@
-﻿using LicensPlateRecognition.Layer;
+﻿using LicensPlateRecognition.Kernel;
+using LicensPlateRecognition.Layer;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -11,21 +12,34 @@ namespace LicensPlateRecognition.Network
     {
         static void Main(string[] args)
         {
-            string bitmapFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
+            string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
             Bitmap b = new Bitmap(bitmapFilePath);
 
-            InputLayer inputLayer = new InputLayer(500, 500);
+            InputLayer inputLayer = new InputLayer(50, 50);
             inputLayer.LoadImage(b);
 
-            //ConvolutionLayer convLayer = new ConvolutionLayer();
-            //b = convLayer.Convolution(b);
+            ConvolutionLayer convLayer = new ConvolutionLayer(new Filter(3, 3, 3), 10, 2);
+            convLayer.RandInitFilter();
+            double[,,] image = convLayer.Convolution(inputLayer.ImgArray);
+            //for (int z = 0; z < image.GetLength(2); z++)
+            //{
+            //    for (int y = 0; y < image.GetLength(1); y++)
+            //    {
+            //        for (int x = 0; x < image.GetLength(0); x++)
+            //        {
+            //            Console.Write(image[x, y, z] + " ");
+            //        }
+            //        Console.WriteLine();
+            //    }
+            //}
+            
             //b.Save(@"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaFilter.jpg");
 
             //FullyConnectedLayer fullyConnectedLayer = new FullyConnectedLayer(4,4);
             //fullyConnectedLayer.InitLayerMat();
 
-            //Console.WriteLine("Press any key to continue...");
-            //Console.ReadKey();
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
         }
 
         public void StoreNeuralNetwork()

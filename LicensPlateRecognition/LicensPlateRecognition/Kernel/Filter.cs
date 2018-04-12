@@ -10,6 +10,11 @@ namespace LicensPlateRecognition.Kernel
 
         private double bias;
 
+        public Filter(int width, int heigth, int depth)
+        {
+            this.filterMat = new double[width, heigth, depth];
+        }
+
         public double[,,] FilterMat
         {
             get => this.filterMat;

@@ -21,16 +21,14 @@ namespace LicensPlateRecognition.Layer
             this.randNumGen = new RandomGaussNumberGen(0, 1);
         }
 
-        public override void InitLayerMat()
+        public override void RandInitLayerMat()
         {
             for (int i = 0; i < row; i++)
             {
                 for (int j = 0; j < column; j++)
                 {
                     this.layerMat[i, j] = this.randNumGen.CreateRandomNum();
-                    Console.Write(this.layerMat[i, j] + " ");
                 }
-                Console.WriteLine();
             }
         }
     }

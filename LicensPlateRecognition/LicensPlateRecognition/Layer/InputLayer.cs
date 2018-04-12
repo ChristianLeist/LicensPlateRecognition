@@ -10,17 +10,17 @@ namespace LicensPlateRecognition.Layer
 {
     class InputLayer : Layer
     {
-        private int[,,] imgArray;
+        private double[,,] imgArray;
         private int width, height;
 
-        public InputLayer (int width, int height)
+        public InputLayer(int width, int height)
         {
             this.width = width;
             this.height = height;
-            this.imgArray = new int[width, height, 3];
+            this.imgArray = new double[width, height, 3];
         }
 
-        public int[,,] ImgArray
+        public double[,,] ImgArray
         {
             get => this.imgArray;
         }
@@ -28,7 +28,7 @@ namespace LicensPlateRecognition.Layer
         public void LoadImage(Bitmap inputImg)
         {
             inputImg = ResizeImage(inputImg);
-            BitmapData inputImageData = inputImg.LockBits(new Rectangle(0, 0, inputImg.Width, inputImg.Height), 
+            BitmapData inputImageData = inputImg.LockBits(new Rectangle(0, 0, inputImg.Width, inputImg.Height),
                                                           ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
             int inputImageByte = inputImageData.Stride * inputImageData.Height;
@@ -77,7 +77,7 @@ namespace LicensPlateRecognition.Layer
             return destImage;
         }
 
-        public override void InitLayerMat()
+        public override void RandInitLayerMat()
         {
             // Not necessary in an input layer of a convNet
         }

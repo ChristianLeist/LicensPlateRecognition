@@ -8,6 +8,6 @@ namespace LicensPlateRecognition.Layer
     {
         protected double[,] layerMat;
 
-        abstract public void InitLayerMat();
+        abstract public void RandInitLayerMat();
     }
 }

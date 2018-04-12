@@ -6,7 +6,7 @@ namespace LicensPlateRecognition.Layer
 {
     class OutputLayer : Layer
     {
-        public override void InitLayerMat()
+        public override void RandInitLayerMat()
         {
             // TODO
         }
