@@ -20,7 +20,10 @@ namespace LicensPlateRecognition.Layer
         public ConvolutionLayer(Filter filter, int numberOfFilters, int stride)
         {
             filters = new List<Filter>();
-            for (int i = 0; i < numberOfFilters; i++) { this.filters.Add(filter); }
+            for (int i = 0; i < numberOfFilters; i++)
+            {
+                this.filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
+            }
             this.stride = stride;
             this.randNumGen = new RandomGaussNumberGen(0, 1);
             // Test filter
@@ -137,7 +140,15 @@ namespace LicensPlateRecognition.Layer
                                 }
                             }
                         }
-                        outImage[x, y, z] = convVal + this.filters[z].Bias;
+                        // Relu: f(x) = max(x,0)
+                        if (convVal + this.filters[z].Bias < 0)
+                        {
+                            outImage[x, y, z] = 0;
+                        }
+                        else
+                        {
+                            outImage[x, y, z] = convVal + this.filters[z].Bias;
+                        }
                     }
                 }
             }
@@ -187,17 +198,18 @@ namespace LicensPlateRecognition.Layer
             foreach (Filter filter in this.filters)
             {
                 filter.Bias = this.randNumGen.CreateRandomNum();
-                for (int x = 0; x < filter.FilterMat.GetLength(0); x++)
+                for (int z = 0; z < filter.FilterMat.GetLength(2); z++)
                 {
                     for (int y = 0; y < filter.FilterMat.GetLength(1); y++)
                     {
-                        for (int z = 0; z < filter.FilterMat.GetLength(2); z++)
+                        for (int x = 0; x < filter.FilterMat.GetLength(0); x++)
                         {
                             filter.FilterMat[x, y, z] = randNumGen.CreateRandomNum();
-                            //Console.Write(filter.FilterMat[x, y, z] + " ");
+                            Console.Write(filter.FilterMat[x, y, z] + " ");
                         }
-                        //Console.WriteLine();
+                        Console.WriteLine();
                     }
+                    Console.WriteLine();
                 }
             }
         }
