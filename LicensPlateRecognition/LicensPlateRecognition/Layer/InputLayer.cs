@@ -10,19 +10,14 @@ namespace LicensPlateRecognition.Layer
 {
     class InputLayer : Layer
     {
-        private double[,,] imgArray;
-        private int width, height;
+        private int width, height, depth;
 
         public InputLayer(int width, int height)
         {
             this.width = width;
             this.height = height;
-            this.imgArray = new double[width, height, 3];
-        }
-
-        public double[,,] ImgArray
-        {
-            get => this.imgArray;
+            this.depth = 3;
+            this.imgMatrix = new double[width][][];
         }
 
         public void LoadImage(Bitmap inputImg)
@@ -39,14 +34,25 @@ namespace LicensPlateRecognition.Layer
             inputImg.UnlockBits(inputImageData);
 
             // Copy bitmap values into imgArray
-            for (int y = 0; y < this.height; y++)
+            for (int z = 0; z < this.depth; z++)
             {
-                for (int x = 0; x < this.width; x++)
+                for (int y = 0; y < this.height; y++)
                 {
-                    int inputImgPixel = y * inputImageData.Stride + x * 4;
-                    for (int z = 0; z < this.imgArray.GetLength(2); z++)
+                    for (int x = 0; x < this.width; x++)
                     {
-                        imgArray[x, y, z] = inputImageArray[inputImgPixel + z];
+                        // init imgMatrix
+                        if (z == 0)
+                        {
+                            if (y == 0)
+                            {
+                                imgMatrix[x] = new double[this.height][];
+                            }
+                            imgMatrix[x][y] = new double[this.depth];
+                        }
+
+                        // fill imgMatrix
+                        int inputImgPixel = y * inputImageData.Stride + x * 4;
+                        imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z];
                     }
                 }
             }
@@ -75,11 +81,6 @@ namespace LicensPlateRecognition.Layer
             }
 
             return destImage;
-        }
-
-        public override void RandInitLayerMat()
-        {
-            // Not necessary in an input layer of a convNet
         }
     }
 }

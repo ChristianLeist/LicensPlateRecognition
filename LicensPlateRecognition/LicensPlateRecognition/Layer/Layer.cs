@@ -6,8 +6,11 @@ namespace LicensPlateRecognition.Layer
 {
     abstract class Layer
     {
-        protected double[,] layerMat;
+        protected double[][][] imgMatrix;
 
-        abstract public void RandInitLayerMat();
+        public double[][][] ImgMatrix
+        {
+            get => this.imgMatrix;
+        }
     }
 }

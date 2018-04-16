@@ -20,21 +20,22 @@ namespace LicensPlateRecognition.Network
 
             ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, 3), 5, 2);
             convLayer1.RandInitFilter();
-            double[,,] image = convLayer1.Convolution(inputLayer.ImgArray);
+            convLayer1.Convolution(inputLayer.ImgMatrix);
 
             ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(3, 3, 5), 10, 1);
             convLayer2.RandInitFilter();
-            image = convLayer2.Convolution(image);
+            convLayer2.Convolution(convLayer1.ImgMatrix);
 
             PoolingLayer pooling = new PoolingLayer();
-            image = pooling.MaxPooling(convLayer2.Convolution(image));
-            for (int z = 0; z < image.GetLength(2); z++)
+            pooling.MaxPooling(convLayer2.ImgMatrix);
+
+            for (int z = 0; z < pooling.ImgMatrix[0][0].Length; z++)
             {
-                for (int y = 0; y < image.GetLength(1); y++)
+                for (int y = 0; y < pooling.ImgMatrix[0].Length; y++)
                 {
-                    for (int x = 0; x < image.GetLength(0); x++)
+                    for (int x = 0; x < pooling.ImgMatrix.Length; x++)
                     {
-                        Console.Write(image[x, y, z] + " ");
+                        Console.Write(pooling.ImgMatrix[x][y][z] + " ");
                     }
                     Console.WriteLine();
                 }

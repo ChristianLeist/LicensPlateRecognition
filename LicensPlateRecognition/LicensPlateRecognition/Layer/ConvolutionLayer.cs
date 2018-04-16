@@ -12,8 +12,6 @@ namespace LicensPlateRecognition.Layer
     class ConvolutionLayer : Layer
     {
         private List<Filter> filters;
-        // Test filter
-        //private int[,,] filterMat;
         private int stride;
         private RandomGaussNumberGen randNumGen;
 
@@ -26,10 +24,6 @@ namespace LicensPlateRecognition.Layer
             }
             this.stride = stride;
             this.randNumGen = new RandomGaussNumberGen(0, 1);
-            // Test filter
-            //this.filterMat = new int[3, 3, 3] { { { 0, 0, 0 }, { -1, -1, -1 }, { 0, 0, 0 } },
-            //                                    { { -1, -1, -1 }, { 5, 5, 5 }, { -1, -1, -1 } },
-            //                                    { { 0, 0, 0 }, { -1, -1, -1 }, { 0, 0, 0 } } };
         }
 
         //public Bitmap Convolution(Bitmap inputBitmap)
@@ -45,8 +39,8 @@ namespace LicensPlateRecognition.Layer
         //    int outWidth = inputBitmap.Width / this.stride;
         //    int outHeigth = inputBitmap.Height / this.stride;
 
-        //    Bitmap outImage = new Bitmap(outWidth, outHeigth);
-        //    BitmapData outImageData = outImage.LockBits(new Rectangle(0, 0, outWidth, outHeigth), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
+        //    Bitmap outMatrix = new Bitmap(outWidth, outHeigth);
+        //    BitmapData outImageData = outMatrix.LockBits(new Rectangle(0, 0, outWidth, outHeigth), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
         //    BitmapData inputImageData = padInputBitmap.LockBits(new Rectangle(0, 0, width, heigth), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
         //    int inputImageByte = inputImageData.Stride * inputImageData.Height;
@@ -96,31 +90,31 @@ namespace LicensPlateRecognition.Layer
         //    }
         //    // Copy array values into output image
         //    Marshal.Copy(outImageArray, 0, outImageData.Scan0, outImageByte);
-        //    outImage.UnlockBits(outImageData);
+        //    outMatrix.UnlockBits(outImageData);
 
-        //    return outImage;
+        //    return outMatrix;
         //}
 
-        public double[,,] Convolution(double[,,] inputImage)
+        public void Convolution(double[][][] inMatrix)
         {
-            int filterDepth = this.filters.Find(filter => true).FilterMat.GetLength(2);
+            int filterDepth = this.filters.Find(filter => true).FilterMat[0][0].Length;
             // Zero padding border formular with fxf filter: (f - 1) / 2
-            int f = this.filters.Find(filter => true).FilterMat.GetLength(0);
+            int f = this.filters.Find(filter => true).FilterMat.Length;
             int border = (f - 1) / 2;
-            double[,,] padInputImage = ZeroPadding(inputImage, border);
+            ZeroPadding(inMatrix, border);
 
-            int width = padInputImage.GetLength(0);
-            int heigth = padInputImage.GetLength(1);
-            int depth = padInputImage.GetLength(2);
+            int width = this.imgMatrix.Length;
+            int heigth = this.imgMatrix[0].Length;
+            int depth = this.imgMatrix[0][0].Length;
 
-            int outWidth = inputImage.GetLength(0) / this.stride;
-            int outHeigth = inputImage.GetLength(1) / this.stride;
+            int outWidth = inMatrix.Length / this.stride;
+            int outHeigth = inMatrix[0].Length / this.stride;
             // Number of filters
             int outDepth = this.filters.Count;
 
-            double[,,] outImage = new double[outWidth, outHeigth, outDepth];
+            double[][][] outMatrix = new double[outWidth][][];
 
-            // Filter loop
+            // Loop over Filters
             for (int z = 0; z < outDepth; z++)
             {
                 // Create feature map
@@ -128,6 +122,16 @@ namespace LicensPlateRecognition.Layer
                 {
                     for (int x = 0; x < outWidth; x++)
                     {
+                        // init outMatrix
+                        if (z == 0)
+                        {
+                            if (y == 0)
+                            {
+                                outMatrix[x] = new double[outHeigth][];
+                            }
+                            outMatrix[x][y] = new double[outDepth];
+                        }
+
                         // Full depth convolution
                         double convVal = 0.00;
                         for (int d = 0; d < filterDepth; d++)
@@ -136,61 +140,68 @@ namespace LicensPlateRecognition.Layer
                             {
                                 for (int w = 0; w < f; w++)
                                 {
-                                    convVal += this.filters[z].FilterMat[w, h, d] * padInputImage[this.stride * x + w, this.stride * y + h, d];
+                                    convVal += this.filters[z].FilterMat[w][h][d] * this.imgMatrix[this.stride * x + w][this.stride * y + h][d];
                                 }
                             }
                         }
+
                         // Relu: f(x) = max(x,0)
                         if (convVal + this.filters[z].Bias < 0)
                         {
-                            outImage[x, y, z] = 0;
+                            outMatrix[x][y][z] = 0;
                         }
                         else
                         {
-                            outImage[x, y, z] = convVal + this.filters[z].Bias;
+                            outMatrix[x][y][z] = convVal + this.filters[z].Bias;
                         }
                     }
                 }
             }
 
-            return outImage;
+            this.imgMatrix = outMatrix;
         }
 
-        public double[,,] ZeroPadding(double[,,] inputImage, int border)
+        public void ZeroPadding(double[][][] inputImage, int border)
         {
-            int width = inputImage.GetLength(0);
-            int heigth = inputImage.GetLength(1);
-            int depth = inputImage.GetLength(2);
+            int width = inputImage.Length;
+            int heigth = inputImage[0].Length;
+            int depth = inputImage[0][0].Length;
 
             int padWidth = width + 2 * border;
             int padHeigth = heigth + 2 * border;
 
-            double[,,] padImage = new double[padWidth, padHeigth, depth];
+            double[][][] padImage = new double[padWidth][][];
 
             // Create Matrix with zero padded borders
-            for (int y = 0; y < padHeigth; y++)
+            for (int z = 0; z < depth; z++)
             {
-                for (int x = 0; x < padWidth; x++)
+                for (int y = 0; y < padHeigth; y++)
                 {
-                    for (int z = 0; z < depth; z++)
+                    for (int x = 0; x < padWidth; x++)
                     {
-                        if (y < border || y >= padHeigth - border * 2 || x < border || x >= padWidth - border * 2)
+                        // init
+                        if (z == 0)
                         {
-                            padImage[x, y, z] = 0;
+                            if (y == 0)
+                            {
+                                padImage[x] = new double[padHeigth][];
+                            }
+                            padImage[x][y] = new double[depth];
+                        }
+
+                        // pad
+                        if (x < border || x >= padHeigth - border * 2 || y < border || y >= padWidth - border * 2)
+                        {
+                            padImage[x][y][z] = 0;
                         }
                         else
                         {
-                            padImage[x, y, z] = inputImage[x, y, z];
+                            padImage[x][y][z] = inputImage[x][y][z];
                         }
                     }
                 }
             }
-            return padImage;
-        }
-
-        public override void RandInitLayerMat()
-        {
-            // Not necessary in an Convolution layer of a convNet
+            this.imgMatrix =  padImage;
         }
 
         public void RandInitFilter()
@@ -198,18 +209,29 @@ namespace LicensPlateRecognition.Layer
             foreach (Filter filter in this.filters)
             {
                 filter.Bias = this.randNumGen.CreateRandomNum();
-                for (int z = 0; z < filter.FilterMat.GetLength(2); z++)
+                for (int z = 0; z < filter.Depth; z++)
                 {
-                    for (int y = 0; y < filter.FilterMat.GetLength(1); y++)
+                    for (int y = 0; y < filter.Height; y++)
                     {
-                        for (int x = 0; x < filter.FilterMat.GetLength(0); x++)
+                        for (int x = 0; x < filter.Width; x++)
                         {
-                            filter.FilterMat[x, y, z] = randNumGen.CreateRandomNum();
-                            Console.Write(filter.FilterMat[x, y, z] + " ");
+                            // init
+                            if (z == 0)
+                            {
+                                if (y == 0)
+                                {
+                                    filter.FilterMat[x] = new double[filter.Height][];
+                                }
+                                filter.FilterMat[x][y] = new double[filter.Depth];
+                            }
+
+                            // fill
+                            filter.FilterMat[x][y][z] = randNumGen.CreateRandomNum();
+                            //Console.Write(filter.FilterMat[x][y][z] + " ");
                         }
-                        Console.WriteLine();
+                        //Console.WriteLine();
                     }
-                    Console.WriteLine();
+                    //Console.WriteLine();
                 }
             }
         }

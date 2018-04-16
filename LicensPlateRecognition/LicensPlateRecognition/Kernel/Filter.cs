@@ -6,7 +6,7 @@ namespace LicensPlateRecognition.Kernel
 {
     class Filter
     {
-        private double[,,] filterMat;
+        private double[][][] filterMat;
         private int width, depth, heigth;
         private double bias;
 
@@ -15,7 +15,7 @@ namespace LicensPlateRecognition.Kernel
             this.width = width;
             this.heigth = heigth;
             this.depth = depth;
-            this.filterMat = new double[width, heigth, depth];
+            this.filterMat = new double[width][][];
         }
 
         public int Width
@@ -33,7 +33,7 @@ namespace LicensPlateRecognition.Kernel
             get => this.depth;
         }
 
-        public double[,,] FilterMat
+        public double[][][] FilterMat
         {
             get => this.filterMat;
             set => this.filterMat = value;
