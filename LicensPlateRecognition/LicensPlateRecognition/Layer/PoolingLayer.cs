@@ -13,7 +13,7 @@ namespace LicensPlateRecognition.Layer
             int outHeigth = inMatrix[0].Length / stride;
             int outDepth = inMatrix[0][0].Length;
 
-            double[][][] outMatrix = new double[outWidth][][];
+            this.imgMatrix = new double[outWidth][][];
             double[] valueArray = new double[4];
 
             for (int z = 0; z < outDepth; z++)
@@ -27,9 +27,9 @@ namespace LicensPlateRecognition.Layer
                         {
                             if (y == 0)
                             {
-                                outMatrix[x] = new double[outHeigth][];
+                                this.imgMatrix[x] = new double[outHeigth][];
                             }
-                            outMatrix[x][y] = new double[outDepth];
+                            this.imgMatrix[x][y] = new double[outDepth];
                         }
 
                         int k = 0;
@@ -41,12 +41,10 @@ namespace LicensPlateRecognition.Layer
                             }
                         }
                         Array.Sort(valueArray);
-                        outMatrix[x][y][z] = valueArray[k - 1];
+                        this.imgMatrix[x][y][z] = valueArray[k - 1];
                     }
                 }
             }
-
-            this.imgMatrix =  outMatrix;
         }
     }
 }

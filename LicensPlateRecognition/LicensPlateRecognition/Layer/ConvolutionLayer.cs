@@ -157,7 +157,6 @@ namespace LicensPlateRecognition.Layer
                     }
                 }
             }
-
             this.imgMatrix = outMatrix;
         }
 
@@ -170,7 +169,7 @@ namespace LicensPlateRecognition.Layer
             int padWidth = width + 2 * border;
             int padHeigth = heigth + 2 * border;
 
-            double[][][] padImage = new double[padWidth][][];
+            this.imgMatrix = new double[padWidth][][];
 
             // Create Matrix with zero padded borders
             for (int z = 0; z < depth; z++)
@@ -184,24 +183,23 @@ namespace LicensPlateRecognition.Layer
                         {
                             if (y == 0)
                             {
-                                padImage[x] = new double[padHeigth][];
+                                this.imgMatrix[x] = new double[padHeigth][];
                             }
-                            padImage[x][y] = new double[depth];
+                            this.imgMatrix[x][y] = new double[depth];
                         }
 
                         // pad
                         if (x < border || x >= padHeigth - border * 2 || y < border || y >= padWidth - border * 2)
                         {
-                            padImage[x][y][z] = 0;
+                            this.imgMatrix[x][y][z] = 0;
                         }
                         else
                         {
-                            padImage[x][y][z] = inputImage[x][y][z];
+                            this.imgMatrix[x][y][z] = inputImage[x][y][z];
                         }
                     }
                 }
             }
-            this.imgMatrix =  padImage;
         }
 
         public void RandInitFilter()

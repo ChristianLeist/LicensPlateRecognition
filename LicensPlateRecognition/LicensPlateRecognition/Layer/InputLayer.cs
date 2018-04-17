@@ -45,14 +45,14 @@ namespace LicensPlateRecognition.Layer
                         {
                             if (y == 0)
                             {
-                                imgMatrix[x] = new double[this.height][];
+                                this.imgMatrix[x] = new double[this.height][];
                             }
-                            imgMatrix[x][y] = new double[this.depth];
+                            this.imgMatrix[x][y] = new double[this.depth];
                         }
 
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
-                        imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z];
+                        this.imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z];
                     }
                 }
             }
