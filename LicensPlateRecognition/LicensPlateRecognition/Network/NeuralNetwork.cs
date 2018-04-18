@@ -1,20 +1,46 @@
 ﻿using LicensPlateRecognition.Kernel;
 using LicensPlateRecognition.Layer;
+using LicensPlateRecognition.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Linq;
 using System.Text;
 
 namespace LicensPlateRecognition.Network
 {
     class NeuralNetwork
     {
+        private ExecMode execMode = ExecMode.Learning;
+        private double lossFunction = 0;
+        private double learningRate = 0.1;
+
         static void Main(string[] args)
         {
-            string bitmapFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\Lenna.jpg";
-            Bitmap b = new Bitmap(bitmapFilePath);
+            NeuralNetwork network = new NeuralNetwork();
+            string imageFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
+            string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*.jpg");
+            string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*.jpg");
+            Random rnd = new Random();
 
+            if (network.execMode == ExecMode.Learning)
+            {
+                // shuffle training input
+                string[] rndTraining = trainingData.OrderBy(x => rnd.Next()).ToArray();
+                for (int i = 0; i < rndTraining.Length; i++)
+                {
+                    network.TraverseNetwork(new Bitmap(rndTraining[i]));
+                }
+            }
+
+            Console.WriteLine("Press any key to continue...");
+            Console.ReadKey();
+        }
+
+        public void TraverseNetwork(Bitmap b)
+        {
             InputLayer inputLayer = new InputLayer(64, 64);
             inputLayer.LoadImage(b);
 
@@ -30,18 +56,6 @@ namespace LicensPlateRecognition.Network
             pooling1.MaxPooling(convLayer2.ImgMatrix);
             pooling1.Flattening();
 
-            //for (int z = 0; z < pooling1.ImgMatrix[0][0].Length; z++)
-            //{
-            //    for (int y = 0; y < pooling1.ImgMatrix[0].Length; y++)
-            //    {
-            //        for (int x = 0; x < pooling1.ImgMatrix.Length; x++)
-            //        {
-            //            Console.Write(pooling1.ImgMatrix[x][y][z] + " ");
-            //        }
-            //        Console.WriteLine();
-            //    }
-            //}
-
             FullyConnectedLayer fullyConnectedLayer1 = new FullyConnectedLayer(pooling1.FlatArray.Length, pooling1.FlatArray.Length);
             fullyConnectedLayer1.RandInitLayerMat();
             fullyConnectedLayer1.FeedForward(pooling1.FlatArray);
@@ -51,13 +65,29 @@ namespace LicensPlateRecognition.Network
             fullyConnectedLayer2.FeedForward(fullyConnectedLayer1.FlatArray);
 
             OutputLayer outputLayer = new OutputLayer(fullyConnectedLayer2.FlatArray);
-            outputLayer.Softmax();
+            outputLayer.ComputeOutput();
             outputLayer.PrintArray();
 
-            //b.Save(@"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\LennaFilter.jpg");
+            // Backpropagation
+            if (this.execMode == ExecMode.Learning)
+            {
+                // TODO
+            }
+        }
 
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
+        public void PrintMatrix(double[][][] inMatrix)
+        {
+            for (int z = 0; z < inMatrix[0][0].Length; z++)
+            {
+                for (int y = 0; y < inMatrix[0].Length; y++)
+                {
+                    for (int x = 0; x < inMatrix.Length; x++)
+                    {
+                        Console.Write(inMatrix[x][y][z] + " ");
+                    }
+                    Console.WriteLine();
+                }
+            }
         }
 
         public void StoreNeuralNetwork()

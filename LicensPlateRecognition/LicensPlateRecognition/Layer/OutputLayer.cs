@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LicensPlateRecognition.Calc;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -6,36 +7,17 @@ namespace LicensPlateRecognition.Layer
 {
     class OutputLayer : Layer
     {
+        private Function activation;
+
         public OutputLayer(double[] flatArray)
         {
             this.flatArray = flatArray;
+            activation = new Function();
         }
 
-        public void Softmax()
+        public void ComputeOutput()
         {
-            int length = this.flatArray.Length;
-            double[] ar = new double[length];
-            double denom = 0;
-
-            this.flatArray.CopyTo(ar, 0);
-            Array.Sort(ar);
-
-            for (int i = 0; i < length; i++)
-            {
-                this.flatArray[i] -= ar[length - 1];
-            }
-
-            for (int i = 0; i < length; i++)
-            {
-                denom += Math.Pow(Math.E, this.flatArray[i]);
-            }
-
-            for (int i = 0; i < length; i++)
-            {
-                ar[i] = Math.Pow(Math.E, this.flatArray[i]) / denom;
-            }
-
-            this.flatArray = ar;
+            this.flatArray = activation.Softmax(this.flatArray);
         }
 
         public void PrintArray()
