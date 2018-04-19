@@ -8,7 +8,14 @@ namespace LicensPlateRecognition.Layer
     {
         protected double[][][] imgMatrix;
         protected double[] flatArray;
+        protected Layer prevLayer;
+        protected Layer nextLayer;
+        protected int width, height, depth;
 
+        protected Layer(Layer prevLayer)
+        {
+            this.prevLayer = prevLayer;
+        }
 
         public void Flattening()
         {
@@ -28,6 +35,36 @@ namespace LicensPlateRecognition.Layer
                     }
                 }
             }
+        }
+
+        public Layer NextLayer
+        {
+            get => this.nextLayer;
+            set => this.nextLayer = value;
+        }
+
+        public Layer PrevLayer
+        {
+            get => this.prevLayer;
+            set => this.prevLayer = value;
+        }
+
+        public int Width
+        {
+            get => this.width;
+            set => this.width = value;
+        }
+
+        public int Height
+        {
+            get => this.height;
+            set => this.height = value;
+        }
+
+        public int Depth
+        {
+            get => this.depth;
+            set => this.depth = value;
         }
 
         public double[] FlatArray

@@ -13,9 +13,8 @@ namespace LicensPlateRecognition.Layer
     {
         private List<Filter> filters;
         private int stride;
-        private RandomGaussNumberGen randNumGen;
 
-        public ConvolutionLayer(Filter filter, int numberOfFilters, int stride)
+        public ConvolutionLayer(Filter filter, int numberOfFilters, int stride, Layer prev) : base(prev)
         {
             filters = new List<Filter>();
             for (int i = 0; i < numberOfFilters; i++)
@@ -23,7 +22,6 @@ namespace LicensPlateRecognition.Layer
                 this.filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
             }
             this.stride = stride;
-            this.randNumGen = new RandomGaussNumberGen(0, 1);
         }
 
         //public Bitmap Convolution(Bitmap inputBitmap)
@@ -34,14 +32,14 @@ namespace LicensPlateRecognition.Layer
         //    Bitmap padInputBitmap = ZeroPadding(inputBitmap, border);
 
         //    int width = padInputBitmap.Width;
-        //    int heigth = padInputBitmap.Height;
+        //    int height = padInputBitmap.Height;
 
         //    int outWidth = inputBitmap.Width / this.stride;
         //    int outHeigth = inputBitmap.Height / this.stride;
 
         //    Bitmap outMatrix = new Bitmap(outWidth, outHeigth);
         //    BitmapData outImageData = outMatrix.LockBits(new Rectangle(0, 0, outWidth, outHeigth), ImageLockMode.WriteOnly, PixelFormat.Format32bppArgb);
-        //    BitmapData inputImageData = padInputBitmap.LockBits(new Rectangle(0, 0, width, heigth), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
+        //    BitmapData inputImageData = padInputBitmap.LockBits(new Rectangle(0, 0, width, height), ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
         //    int inputImageByte = inputImageData.Stride * inputImageData.Height;
         //    int outImageByte = outImageData.Stride * outImageData.Height;
@@ -204,9 +202,10 @@ namespace LicensPlateRecognition.Layer
 
         public void RandInitFilter()
         {
+            RandomGaussNumberGen randNumGen = new RandomGaussNumberGen(0, 1);
             foreach (Filter filter in this.filters)
             {
-                filter.Bias = this.randNumGen.CreateRandomNum();
+                filter.Bias = randNumGen.CreateRandomNum();
                 for (int z = 0; z < filter.Depth; z++)
                 {
                     for (int y = 0; y < filter.Height; y++)

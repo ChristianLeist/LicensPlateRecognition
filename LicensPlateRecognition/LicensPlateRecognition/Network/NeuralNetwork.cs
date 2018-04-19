@@ -41,30 +41,46 @@ namespace LicensPlateRecognition.Network
 
         public void TraverseNetwork(Bitmap b)
         {
-            InputLayer inputLayer = new InputLayer(64, 64);
+            InputLayer inputLayer;
+            ConvolutionLayer convLayer1;
+            ConvolutionLayer convLayer2;
+            PoolingLayer pooling1;
+            FullyConnectedLayer fullyConnectedLayer1;
+            FullyConnectedLayer fullyConnectedLayer2;
+            OutputLayer outputLayer;
+
+            inputLayer = new InputLayer(64, 64);
+            convLayer1 = new ConvolutionLayer(new Filter(5, 5, 3), 5, 2, inputLayer);
+            convLayer2 = new ConvolutionLayer(new Filter(3, 3, 5), 10, 1, convLayer1);
+            pooling1 = new PoolingLayer(convLayer2);
+            fullyConnectedLayer1 = new FullyConnectedLayer(pooling1);
+            fullyConnectedLayer2 = new FullyConnectedLayer(fullyConnectedLayer1);
+            outputLayer = new OutputLayer(fullyConnectedLayer2);
+
+            // TODO: liste mit layer erzeugen, durch iterieren und next layer setzen
+            outputLayer.NextLayer = null;
+            fullyConnectedLayer2.NextLayer = outputLayer;
+            //
+
             inputLayer.LoadImage(b);
 
-            ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, 3), 5, 2);
             convLayer1.RandInitFilter();
             convLayer1.Convolution(inputLayer.ImgMatrix);
 
-            ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(3, 3, 5), 10, 1);
             convLayer2.RandInitFilter();
             convLayer2.Convolution(convLayer1.ImgMatrix);
 
-            PoolingLayer pooling1 = new PoolingLayer();
             pooling1.MaxPooling(convLayer2.ImgMatrix);
             pooling1.Flattening();
 
-            FullyConnectedLayer fullyConnectedLayer1 = new FullyConnectedLayer(pooling1.FlatArray.Length, pooling1.FlatArray.Length);
+            fullyConnectedLayer1.Init(pooling1.FlatArray.Length, pooling1.FlatArray.Length);
             fullyConnectedLayer1.RandInitLayerMat();
             fullyConnectedLayer1.FeedForward(pooling1.FlatArray);
 
-            FullyConnectedLayer fullyConnectedLayer2 = new FullyConnectedLayer(2 /* Output layer neurons */, fullyConnectedLayer1.Width);
+            fullyConnectedLayer2.Init(fullyConnectedLayer1.FlatArray.Length, 2);
             fullyConnectedLayer2.RandInitLayerMat();
             fullyConnectedLayer2.FeedForward(fullyConnectedLayer1.FlatArray);
 
-            OutputLayer outputLayer = new OutputLayer(fullyConnectedLayer2.FlatArray);
             outputLayer.ComputeOutput();
             outputLayer.PrintArray();
 

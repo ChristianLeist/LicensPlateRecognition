@@ -35,7 +35,7 @@ namespace LicensPlateRecognition.Calc
 
         public double Sigmoid(double inVal)
         {
-            return 1 / 1 + Math.Pow(Math.E, -inVal);
+            return 1 / (1 + Math.Pow(Math.E, -inVal));
         }
 
         public double LossFunction(double[] classArray, double[] targetValue)

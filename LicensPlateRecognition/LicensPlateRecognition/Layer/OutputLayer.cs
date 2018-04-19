@@ -9,14 +9,14 @@ namespace LicensPlateRecognition.Layer
     {
         private Function activation;
 
-        public OutputLayer(double[] flatArray)
+        public OutputLayer(Layer prev) : base(prev)
         {
-            this.flatArray = flatArray;
             activation = new Function();
         }
 
         public void ComputeOutput()
         {
+            this.flatArray = prevLayer.FlatArray;
             this.flatArray = activation.Softmax(this.flatArray);
         }
 

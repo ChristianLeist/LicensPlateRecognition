@@ -6,6 +6,11 @@ namespace LicensPlateRecognition.Layer
 {
     class PoolingLayer : Layer
     {
+        public PoolingLayer(Layer prev) : base(prev)
+        {
+            ;
+        }
+
         public void MaxPooling(double[][][] inMatrix)
         {
             int stride = 2;

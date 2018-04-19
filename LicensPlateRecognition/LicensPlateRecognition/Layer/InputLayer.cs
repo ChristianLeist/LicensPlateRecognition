@@ -10,13 +10,15 @@ namespace LicensPlateRecognition.Layer
 {
     class InputLayer : Layer
     {
-        private int width, height, depth;
+        private int inRangeMin, inRangeMax;
 
-        public InputLayer(int width, int height)
+        public InputLayer(int width, int height) : base(null)
         {
             this.width = width;
             this.height = height;
             this.depth = 3;
+            this.inRangeMax = 255;
+            this.inRangeMin = 0;
             this.imgMatrix = new double[width][][];
         }
 
@@ -52,7 +54,8 @@ namespace LicensPlateRecognition.Layer
 
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
-                        this.imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z];
+                        this.imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin / 
+                                                                    (this.inRangeMax - this.inRangeMin);
                     }
                 }
             }
