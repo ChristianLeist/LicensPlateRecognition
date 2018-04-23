@@ -1,29 +1,55 @@
-﻿using System;
+﻿using LicensPlateRecognition.Network;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
     abstract class Layer
     {
-        protected double[][][] imgMatrix;
-        protected double[] flatArray;
-        protected Layer prevLayer;
-        protected Layer nextLayer;
-        protected int width, height, depth;
+        protected NeuralNetwork neuralNetwork;
+        public double[][][] ImgMatrix { get; protected set; }
+        public double[] FlatArray { get; protected set; }
+        public int Width { get; protected set; }
+        public int Height { get; protected set; }
+        public int Depth { get; protected set; }
 
-        protected Layer(Layer prevLayer)
+        protected Layer(NeuralNetwork neuralNetwork)
         {
-            this.prevLayer = prevLayer;
+            this.neuralNetwork = neuralNetwork;
+            neuralNetwork.Layers.Add(this);
         }
 
+        // used in conv layer
+        public abstract void RandInitFilter();
+
+        // used in fc layer
+        public abstract void RandInitLayerMat();
+
+        // used in fc layer
+        public abstract void InitLayer(int height, int width);
+
+        // used in output layer
+        public abstract void PrintArray();
+
+        // used in input layer
+        public abstract void FeedForward(Image input);
+
+        // used in conv, pool layer
+        public abstract void FeedForward(double[][][] input);
+
+        // used in fc, output layer
+        public abstract void FeedForward(double[] input);
+
+        // used before fc layer
         public void Flattening()
         {
-            int width = this.imgMatrix.Length;
-            int heigth = this.imgMatrix[0].Length;
-            int depth = this.imgMatrix[0][0].Length;
+            int width = this.ImgMatrix.Length;
+            int heigth = this.ImgMatrix[0].Length;
+            int depth = this.ImgMatrix[0][0].Length;
 
-            this.flatArray = new double[width * heigth * depth];
+            this.FlatArray = new double[width * heigth * depth];
 
             for (int z = 0; z < depth; z++)
             {
@@ -31,50 +57,10 @@ namespace LicensPlateRecognition.Layer
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        this.flatArray[x + width * (y + heigth * z)] = this.imgMatrix[x][y][z];
+                        this.FlatArray[x + width * (y + heigth * z)] = this.ImgMatrix[x][y][z];
                     }
                 }
             }
-        }
-
-        public Layer NextLayer
-        {
-            get => this.nextLayer;
-            set => this.nextLayer = value;
-        }
-
-        public Layer PrevLayer
-        {
-            get => this.prevLayer;
-            set => this.prevLayer = value;
-        }
-
-        public int Width
-        {
-            get => this.width;
-            set => this.width = value;
-        }
-
-        public int Height
-        {
-            get => this.height;
-            set => this.height = value;
-        }
-
-        public int Depth
-        {
-            get => this.depth;
-            set => this.depth = value;
-        }
-
-        public double[] FlatArray
-        {
-            get => this.flatArray;
-        }
-
-        public double[][][] ImgMatrix
-        {
-            get => this.imgMatrix;
         }
     }
 }

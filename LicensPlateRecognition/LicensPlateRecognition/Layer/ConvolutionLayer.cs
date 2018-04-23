@@ -1,5 +1,6 @@
 ﻿using LicensPlateRecognition.Calc;
 using LicensPlateRecognition.Kernel;
+using LicensPlateRecognition.Network;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -11,15 +12,15 @@ namespace LicensPlateRecognition.Layer
 {
     class ConvolutionLayer : Layer
     {
-        private List<Filter> filters;
+        public List<Filter> Filters { get; }
         private int stride;
 
-        public ConvolutionLayer(Filter filter, int numberOfFilters, int stride, Layer prev) : base(prev)
+        public ConvolutionLayer(Filter filter, int numberOfFilters, int stride, NeuralNetwork network) : base(network)
         {
-            filters = new List<Filter>();
+            Filters = new List<Filter>();
             for (int i = 0; i < numberOfFilters; i++)
             {
-                this.filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
+                this.Filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
             }
             this.stride = stride;
         }
@@ -93,22 +94,27 @@ namespace LicensPlateRecognition.Layer
         //    return outMatrix;
         //}
 
+        public override void FeedForward(double[][][] inMatrix)
+        {
+            Convolution(inMatrix);
+        }
+
         public void Convolution(double[][][] inMatrix)
         {
-            int filterDepth = this.filters.Find(filter => true).FilterMat[0][0].Length;
+            int filterDepth = this.Filters.Find(filter => true).FilterMat[0][0].Length;
             // Zero padding border formular with fxf filter: (f - 1) / 2
-            int f = this.filters.Find(filter => true).FilterMat.Length;
+            int f = this.Filters.Find(filter => true).FilterMat.Length;
             int border = (f - 1) / 2;
             ZeroPadding(inMatrix, border);
 
-            int width = this.imgMatrix.Length;
-            int heigth = this.imgMatrix[0].Length;
-            int depth = this.imgMatrix[0][0].Length;
+            int width = this.ImgMatrix.Length;
+            int heigth = this.ImgMatrix[0].Length;
+            int depth = this.ImgMatrix[0][0].Length;
 
             int outWidth = inMatrix.Length / this.stride;
             int outHeigth = inMatrix[0].Length / this.stride;
-            // Number of filters
-            int outDepth = this.filters.Count;
+            // Number of Filters
+            int outDepth = this.Filters.Count;
 
             double[][][] outMatrix = new double[outWidth][][];
 
@@ -138,24 +144,24 @@ namespace LicensPlateRecognition.Layer
                             {
                                 for (int w = 0; w < f; w++)
                                 {
-                                    convVal += this.filters[z].FilterMat[w][h][d] * this.imgMatrix[this.stride * x + w][this.stride * y + h][d];
+                                    convVal += this.Filters[z].FilterMat[w][h][d] * this.ImgMatrix[this.stride * x + w][this.stride * y + h][d];
                                 }
                             }
                         }
 
                         // Relu: f(x) = max(x,0)
-                        if (convVal + this.filters[z].Bias < 0)
+                        if (convVal + this.Filters[z].Bias < 0)
                         {
                             outMatrix[x][y][z] = 0;
                         }
                         else
                         {
-                            outMatrix[x][y][z] = convVal + this.filters[z].Bias;
+                            outMatrix[x][y][z] = convVal + this.Filters[z].Bias;
                         }
                     }
                 }
             }
-            this.imgMatrix = outMatrix;
+            this.ImgMatrix = outMatrix;
         }
 
         public void ZeroPadding(double[][][] inputImage, int border)
@@ -167,7 +173,7 @@ namespace LicensPlateRecognition.Layer
             int padWidth = width + 2 * border;
             int padHeigth = heigth + 2 * border;
 
-            this.imgMatrix = new double[padWidth][][];
+            this.ImgMatrix = new double[padWidth][][];
 
             // Create Matrix with zero padded borders
             for (int z = 0; z < depth; z++)
@@ -181,29 +187,29 @@ namespace LicensPlateRecognition.Layer
                         {
                             if (y == 0)
                             {
-                                this.imgMatrix[x] = new double[padHeigth][];
+                                this.ImgMatrix[x] = new double[padHeigth][];
                             }
-                            this.imgMatrix[x][y] = new double[depth];
+                            this.ImgMatrix[x][y] = new double[depth];
                         }
 
                         // pad
                         if (x < border || x >= padHeigth - border * 2 || y < border || y >= padWidth - border * 2)
                         {
-                            this.imgMatrix[x][y][z] = 0;
+                            this.ImgMatrix[x][y][z] = 0;
                         }
                         else
                         {
-                            this.imgMatrix[x][y][z] = inputImage[x][y][z];
+                            this.ImgMatrix[x][y][z] = inputImage[x][y][z];
                         }
                     }
                 }
             }
         }
 
-        public void RandInitFilter()
+        public override void RandInitFilter()
         {
             RandomGaussNumberGen randNumGen = new RandomGaussNumberGen(0, 1);
-            foreach (Filter filter in this.filters)
+            foreach (Filter filter in this.Filters)
             {
                 filter.Bias = randNumGen.CreateRandomNum();
                 for (int z = 0; z < filter.Depth; z++)
@@ -232,5 +238,32 @@ namespace LicensPlateRecognition.Layer
                 }
             }
         }
+
+        public override void RandInitLayerMat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InitLayer(int height, int width)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PrintArray()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(Image input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(double[] input)
+        {
+            throw new NotImplementedException();
+        }
+
+
     }
 }

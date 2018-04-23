@@ -1,6 +1,8 @@
 ﻿using LicensPlateRecognition.Calc;
+using LicensPlateRecognition.Network;
 using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace LicensPlateRecognition.Layer
@@ -9,23 +11,52 @@ namespace LicensPlateRecognition.Layer
     {
         private Function activation;
 
-        public OutputLayer(Layer prev) : base(prev)
+        public OutputLayer(NeuralNetwork network) : base(network)
         {
             activation = new Function();
         }
 
-        public void ComputeOutput()
+        public override void FeedForward(double[] flatArray)
         {
-            this.flatArray = prevLayer.FlatArray;
-            this.flatArray = activation.Softmax(this.flatArray);
+            ComputeOutput(flatArray);
         }
 
-        public void PrintArray()
+        public void ComputeOutput(double[] flatArray)
         {
-            for (int i = 0; i < this.flatArray.Length; i++)
+            this.FlatArray = activation.Softmax(flatArray);
+        }
+
+        public override void PrintArray()
+        {
+            for (int i = 0; i < this.FlatArray.Length; i++)
             {
-                Console.WriteLine(this.flatArray[i]);
+                Console.WriteLine(this.FlatArray[i]);
             }
+        }
+
+        public override void RandInitFilter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RandInitLayerMat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InitLayer(int height, int width)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(Image input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(double[][][] input)
+        {
+            throw new NotImplementedException();
         }
     }
 }

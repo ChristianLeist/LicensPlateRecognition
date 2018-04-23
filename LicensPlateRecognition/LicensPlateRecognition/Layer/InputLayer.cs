@@ -1,4 +1,5 @@
-﻿using System;
+﻿using LicensPlateRecognition.Network;
+using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
@@ -12,19 +13,23 @@ namespace LicensPlateRecognition.Layer
     {
         private int inRangeMin, inRangeMax;
 
-        public InputLayer(int width, int height) : base(null)
+        public InputLayer(int width, int height, int depth, NeuralNetwork network) : base(network)
         {
-            this.width = width;
-            this.height = height;
-            this.depth = 3;
+            this.Width = width;
+            this.Height = height;
+            this.Depth = depth;
             this.inRangeMax = 255;
             this.inRangeMin = 0;
-            this.imgMatrix = new double[width][][];
+            this.ImgMatrix = new double[width][][];
+        }
+
+        public override void FeedForward(Image input)
+        {
+            LoadImage(ResizeImage(input));
         }
 
         public void LoadImage(Bitmap inputImg)
         {
-            inputImg = ResizeImage(inputImg);
             BitmapData inputImageData = inputImg.LockBits(new Rectangle(0, 0, inputImg.Width, inputImg.Height),
                                                           ImageLockMode.ReadOnly, PixelFormat.Format32bppArgb);
 
@@ -36,25 +41,25 @@ namespace LicensPlateRecognition.Layer
             inputImg.UnlockBits(inputImageData);
 
             // Copy bitmap values into imgArray
-            for (int z = 0; z < this.depth; z++)
+            for (int z = 0; z < this.Depth; z++)
             {
-                for (int y = 0; y < this.height; y++)
+                for (int y = 0; y < this.Height; y++)
                 {
-                    for (int x = 0; x < this.width; x++)
+                    for (int x = 0; x < this.Width; x++)
                     {
                         // init imgMatrix
                         if (z == 0)
                         {
                             if (y == 0)
                             {
-                                this.imgMatrix[x] = new double[this.height][];
+                                this.ImgMatrix[x] = new double[this.Height][];
                             }
-                            this.imgMatrix[x][y] = new double[this.depth];
+                            this.ImgMatrix[x][y] = new double[this.Depth];
                         }
 
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
-                        this.imgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin / 
+                        this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin / 
                                                                     (this.inRangeMax - this.inRangeMin);
                     }
                 }
@@ -63,8 +68,8 @@ namespace LicensPlateRecognition.Layer
 
         public Bitmap ResizeImage(Image image)
         {
-            var destRect = new Rectangle(0, 0, this.width, this.height);
-            var destImage = new Bitmap(this.width, this.height);
+            var destRect = new Rectangle(0, 0, this.Width, this.Height);
+            var destImage = new Bitmap(this.Width, this.Height);
 
             destImage.SetResolution(image.HorizontalResolution, image.VerticalResolution);
 
@@ -84,6 +89,36 @@ namespace LicensPlateRecognition.Layer
             }
 
             return destImage;
+        }
+
+        public override void FeedForward(double[][][] input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(double[] input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InitLayer(int height, int width)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void PrintArray()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RandInitFilter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RandInitLayerMat()
+        {
+            throw new NotImplementedException();
         }
     }
 }

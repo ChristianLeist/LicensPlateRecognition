@@ -38,14 +38,20 @@ namespace LicensPlateRecognition.Calc
             return 1 / (1 + Math.Pow(Math.E, -inVal));
         }
 
-        public double LossFunction(double[] classArray, double[] targetValue)
+        public double Dsigmoid(double inVal)
+        {
+            double d = Sigmoid(inVal);
+            return (1 - d) * d;
+        }
+
+        public double LossFunction(double[] classArray, double[] targetValue, int miniBatchSize)
         {
             double outVal = 0;
             for (int i = 0; i < classArray.Length; i++)
             {
-                outVal += 0.5 * Math.Pow((targetValue[i] - classArray[i]), 2);
+                outVal += Math.Pow((targetValue[i] - classArray[i]), 2);
             }
-            return outVal;
+            return (1 / (2 * miniBatchSize)) * outVal;
         }
     }
 }

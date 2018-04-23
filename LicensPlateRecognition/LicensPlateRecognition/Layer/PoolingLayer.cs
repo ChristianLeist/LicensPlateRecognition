@@ -1,14 +1,21 @@
-﻿using System;
+﻿using LicensPlateRecognition.Network;
+using System;
 using System.Collections.Generic;
+using System.Drawing;
 using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
     class PoolingLayer : Layer
     {
-        public PoolingLayer(Layer prev) : base(prev)
+        public PoolingLayer(NeuralNetwork network) : base(network)
         {
             ;
+        }
+
+        public override void FeedForward(double[][][] inMatrix)
+        {
+            MaxPooling(inMatrix);
         }
 
         public void MaxPooling(double[][][] inMatrix)
@@ -18,7 +25,7 @@ namespace LicensPlateRecognition.Layer
             int outHeigth = inMatrix[0].Length / stride;
             int outDepth = inMatrix[0][0].Length;
 
-            this.imgMatrix = new double[outWidth][][];
+            this.ImgMatrix = new double[outWidth][][];
             double[] valueArray = new double[4];
 
             for (int z = 0; z < outDepth; z++)
@@ -32,9 +39,9 @@ namespace LicensPlateRecognition.Layer
                         {
                             if (y == 0)
                             {
-                                this.imgMatrix[x] = new double[outHeigth][];
+                                this.ImgMatrix[x] = new double[outHeigth][];
                             }
-                            this.imgMatrix[x][y] = new double[outDepth];
+                            this.ImgMatrix[x][y] = new double[outDepth];
                         }
 
                         int k = 0;
@@ -46,10 +53,40 @@ namespace LicensPlateRecognition.Layer
                             }
                         }
                         Array.Sort(valueArray);
-                        this.imgMatrix[x][y][z] = valueArray[k - 1];
+                        this.ImgMatrix[x][y][z] = valueArray[k - 1];
                     }
                 }
             }
+        }
+
+        public override void PrintArray()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RandInitFilter()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void RandInitLayerMat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(Image input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void FeedForward(double[] input)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void InitLayer(int height, int width)
+        {
+            throw new NotImplementedException();
         }
     }
 }

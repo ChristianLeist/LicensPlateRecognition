@@ -13,17 +13,37 @@ namespace LicensPlateRecognition.Network
 {
     class NeuralNetwork
     {
-        private ExecMode execMode = ExecMode.Learning;
-        private double lossFunction = 0;
-        private double learningRate = 0.1;
+        public List<Layer.Layer> Layers { get; }
+        private ExecMode execMode;
+        private double lossFunction;
+        private double learningRate;
+
+        public NeuralNetwork()
+        {
+            this.Layers = new List<Layer.Layer>();
+            this.execMode = ExecMode.Learning;
+            this.lossFunction = 0;
+            this.learningRate = 0.1;
+        }
 
         static void Main(string[] args)
         {
             NeuralNetwork network = new NeuralNetwork();
-            string imageFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
+            Random rnd = new Random();
+            string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*.jpg");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*.jpg");
-            Random rnd = new Random();
+
+            // Declare network Layers
+            InputLayer inputLayer = new InputLayer(64, 64, 3, network);
+            ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, inputLayer.Depth), 5, 2, network);
+            ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(3, 3, convLayer1.Filters.Count), 10, 1, network);
+            PoolingLayer pooling1 = new PoolingLayer(network);
+            FullyConnectedLayer fullyConnectedLayer1 = new FullyConnectedLayer(network);
+            FullyConnectedLayer fullyConnectedLayer2 = new FullyConnectedLayer(network);
+            OutputLayer outputLayer = new OutputLayer(network);
+            // Declare Output Classes
+            int outClass = 2;
 
             if (network.execMode == ExecMode.Learning)
             {
@@ -31,64 +51,50 @@ namespace LicensPlateRecognition.Network
                 string[] rndTraining = trainingData.OrderBy(x => rnd.Next()).ToArray();
                 for (int i = 0; i < rndTraining.Length; i++)
                 {
-                    network.TraverseNetwork(new Bitmap(rndTraining[i]));
+                    for (int j = 0; j < network.Layers.Count; j++)
+                    {
+                        if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
+                        {
+                            network.Layers[j].FeedForward(new Bitmap(rndTraining[i]));
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                        {
+                            if (i == 0)
+                                network.Layers[j].RandInitFilter();
+                            network.Layers[j].FeedForward(network.Layers[j - 1].ImgMatrix);
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                        {
+                            network.Layers[j].FeedForward(network.Layers[j - 1].ImgMatrix);
+                            if (network.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                                network.Layers[j].Flattening();
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
+                            if (network.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
+                                network.Layers[j].InitLayer(network.Layers[j - 1].FlatArray.Length, outClass);
+                            else
+                                network.Layers[j].InitLayer(network.Layers[j - 1].FlatArray.Length, network.Layers[j - 1].FlatArray.Length);
+
+                            if (i == 0)
+                                network.Layers[j].RandInitLayerMat();
+                            network.Layers[j].FeedForward(network.Layers[j - 1].FlatArray);
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                        {
+                            network.Layers[j].FeedForward(network.Layers[j - 1].FlatArray);
+                            network.Layers[j].PrintArray();
+                        }
+                    }
                 }
             }
 
             Console.WriteLine("Press any key to continue...");
             Console.ReadKey();
-        }
-
-        public void TraverseNetwork(Bitmap b)
-        {
-            InputLayer inputLayer;
-            ConvolutionLayer convLayer1;
-            ConvolutionLayer convLayer2;
-            PoolingLayer pooling1;
-            FullyConnectedLayer fullyConnectedLayer1;
-            FullyConnectedLayer fullyConnectedLayer2;
-            OutputLayer outputLayer;
-
-            inputLayer = new InputLayer(64, 64);
-            convLayer1 = new ConvolutionLayer(new Filter(5, 5, 3), 5, 2, inputLayer);
-            convLayer2 = new ConvolutionLayer(new Filter(3, 3, 5), 10, 1, convLayer1);
-            pooling1 = new PoolingLayer(convLayer2);
-            fullyConnectedLayer1 = new FullyConnectedLayer(pooling1);
-            fullyConnectedLayer2 = new FullyConnectedLayer(fullyConnectedLayer1);
-            outputLayer = new OutputLayer(fullyConnectedLayer2);
-
-            // TODO: liste mit layer erzeugen, durch iterieren und next layer setzen
-            outputLayer.NextLayer = null;
-            fullyConnectedLayer2.NextLayer = outputLayer;
-            //
-
-            inputLayer.LoadImage(b);
-
-            convLayer1.RandInitFilter();
-            convLayer1.Convolution(inputLayer.ImgMatrix);
-
-            convLayer2.RandInitFilter();
-            convLayer2.Convolution(convLayer1.ImgMatrix);
-
-            pooling1.MaxPooling(convLayer2.ImgMatrix);
-            pooling1.Flattening();
-
-            fullyConnectedLayer1.Init(pooling1.FlatArray.Length, pooling1.FlatArray.Length);
-            fullyConnectedLayer1.RandInitLayerMat();
-            fullyConnectedLayer1.FeedForward(pooling1.FlatArray);
-
-            fullyConnectedLayer2.Init(fullyConnectedLayer1.FlatArray.Length, 2);
-            fullyConnectedLayer2.RandInitLayerMat();
-            fullyConnectedLayer2.FeedForward(fullyConnectedLayer1.FlatArray);
-
-            outputLayer.ComputeOutput();
-            outputLayer.PrintArray();
-
-            // Backpropagation
-            if (this.execMode == ExecMode.Learning)
-            {
-                // TODO
-            }
         }
 
         public void PrintMatrix(double[][][] inMatrix)
