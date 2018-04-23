@@ -23,9 +23,14 @@ namespace LicensPlateRecognition.Layer
             this.ImgMatrix = new double[width][][];
         }
 
-        public override void FeedForward(Image input)
+        public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
-            LoadImage(ResizeImage(input));
+            LoadImage(ResizeImage(img));
+        }
+
+        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        {
+            // TODO
         }
 
         public void LoadImage(Bitmap inputImg)
@@ -59,7 +64,7 @@ namespace LicensPlateRecognition.Layer
 
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
-                        this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin / 
+                        this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin /
                                                                     (this.inRangeMax - this.inRangeMin);
                     }
                 }
@@ -89,16 +94,6 @@ namespace LicensPlateRecognition.Layer
             }
 
             return destImage;
-        }
-
-        public override void FeedForward(double[][][] input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(double[] input)
-        {
-            throw new NotImplementedException();
         }
 
         public override void InitLayer(int height, int width)

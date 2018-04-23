@@ -29,16 +29,22 @@ namespace LicensPlateRecognition.Layer
             this.FlatArray = new double[width];
         }
 
-        public override void FeedForward(double[] inArray)
+        public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
             for (int y = 0; y < this.Height - 1; y++)
             {
                 for (int x = 0; x < this.Width; x++)
                 {
-                    // sigmoid activation of the neurons
-                    this.FlatArray[x] += activation.Sigmoid(inArray[y] * this.layerMat[x][y] + this.layerMat[x][this.Height - 1]);
+                    // Relu activation of the neurons
+                    this.FlatArray[x] = activation.ReLU(this.FlatArray[x]);
+                    this.FlatArray[x] += flat[y] * this.layerMat[x][y] + this.layerMat[x][this.Height - 1];
                 }
             }
+        }
+
+        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        {
+            // TODO
         }
 
         public override void RandInitLayerMat()
@@ -65,16 +71,6 @@ namespace LicensPlateRecognition.Layer
         }
 
         public override void PrintArray()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(Image input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(double[][][] input)
         {
             throw new NotImplementedException();
         }

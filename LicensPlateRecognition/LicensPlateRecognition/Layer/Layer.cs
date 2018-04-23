@@ -10,7 +10,9 @@ namespace LicensPlateRecognition.Layer
     {
         protected NeuralNetwork neuralNetwork;
         public double[][][] ImgMatrix { get; protected set; }
+        public double[][][] GradientMatrix { get; protected set; }
         public double[] FlatArray { get; protected set; }
+        public double[] GradientArray { get; protected set; }
         public int Width { get; protected set; }
         public int Height { get; protected set; }
         public int Depth { get; protected set; }
@@ -33,14 +35,9 @@ namespace LicensPlateRecognition.Layer
         // used in output layer
         public abstract void PrintArray();
 
-        // used in input layer
-        public abstract void FeedForward(Image input);
+        public abstract void FeedForward(Image img, double[] flat, double[][][] matrix);
 
-        // used in conv, pool layer
-        public abstract void FeedForward(double[][][] input);
-
-        // used in fc, output layer
-        public abstract void FeedForward(double[] input);
+        public abstract void BackwardPass(double[] gradientArray, double[][][] gradientMatrix);
 
         // used before fc layer
         public void Flattening()

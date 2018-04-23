@@ -14,6 +14,7 @@ namespace LicensPlateRecognition.Layer
     {
         public List<Filter> Filters { get; }
         private int stride;
+        private Function activation;
 
         public ConvolutionLayer(Filter filter, int numberOfFilters, int stride, NeuralNetwork network) : base(network)
         {
@@ -23,6 +24,7 @@ namespace LicensPlateRecognition.Layer
                 this.Filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
             }
             this.stride = stride;
+            activation = new Function();
         }
 
         //public Bitmap Convolution(Bitmap inputBitmap)
@@ -94,9 +96,14 @@ namespace LicensPlateRecognition.Layer
         //    return outMatrix;
         //}
 
-        public override void FeedForward(double[][][] inMatrix)
+        public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
-            Convolution(inMatrix);
+            Convolution(matrix);
+        }
+
+        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        {
+            // TODO
         }
 
         public void Convolution(double[][][] inMatrix)
@@ -148,16 +155,7 @@ namespace LicensPlateRecognition.Layer
                                 }
                             }
                         }
-
-                        // Relu: f(x) = max(x,0)
-                        if (convVal + this.Filters[z].Bias < 0)
-                        {
-                            outMatrix[x][y][z] = 0;
-                        }
-                        else
-                        {
-                            outMatrix[x][y][z] = convVal + this.Filters[z].Bias;
-                        }
+                        outMatrix[x][y][z] = activation.ReLU(convVal + this.Filters[z].Bias);
                     }
                 }
             }
@@ -253,17 +251,5 @@ namespace LicensPlateRecognition.Layer
         {
             throw new NotImplementedException();
         }
-
-        public override void FeedForward(Image input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(double[] input)
-        {
-            throw new NotImplementedException();
-        }
-
-
     }
 }

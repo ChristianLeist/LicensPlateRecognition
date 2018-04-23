@@ -10,27 +10,39 @@ namespace LicensPlateRecognition.Layer
     class OutputLayer : Layer
     {
         private Function activation;
+        private double[] outputArray;
 
         public OutputLayer(NeuralNetwork network) : base(network)
         {
             activation = new Function();
         }
 
-        public override void FeedForward(double[] flatArray)
+        public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
-            ComputeOutput(flatArray);
+            ComputeOutput(flat);
+        }
+
+        public override void BackwardPass(double[] setValueArray, double[][][] gradientMatrix)
+        {
+            this.GradientArray = new double[this.outputArray.Length];
+            for (int i = 0; i < this.outputArray.Length; i++)
+            {
+                this.GradientArray[i] = activation.DLossFunction(this.outputArray[i], setValueArray[i]) * 
+                                                                activation.DSoftmax(this.FlatArray[i]);
+            }
         }
 
         public void ComputeOutput(double[] flatArray)
         {
-            this.FlatArray = activation.Softmax(flatArray);
+            this.FlatArray = flatArray;
+            this.outputArray = activation.Softmax(flatArray);
         }
 
         public override void PrintArray()
         {
-            for (int i = 0; i < this.FlatArray.Length; i++)
+            for (int i = 0; i < this.outputArray.Length; i++)
             {
-                Console.WriteLine(this.FlatArray[i]);
+                Console.WriteLine(this.outputArray[i]);
             }
         }
 
@@ -45,16 +57,6 @@ namespace LicensPlateRecognition.Layer
         }
 
         public override void InitLayer(int height, int width)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(Image input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(double[][][] input)
         {
             throw new NotImplementedException();
         }

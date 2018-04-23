@@ -33,11 +33,30 @@ namespace LicensPlateRecognition.Calc
             return ar;
         }
 
+        // derivative
+        public double DSoftmax(double inVal)
+        {
+            // TODO
+            return inVal;
+        }
+
+        public double ReLU(double inVal)
+        {
+            return inVal < 0 ? 0 : inVal;
+        }
+
+        // derivative
+        public double DReLU(double inVal)
+        {
+            return inVal < 0 ? 0 : 1;
+        }
+
         public double Sigmoid(double inVal)
         {
             return 1 / (1 + Math.Pow(Math.E, -inVal));
         }
 
+        // derivative
         public double Dsigmoid(double inVal)
         {
             double d = Sigmoid(inVal);
@@ -52,6 +71,12 @@ namespace LicensPlateRecognition.Calc
                 outVal += Math.Pow((targetValue[i] - classArray[i]), 2);
             }
             return (1 / (2 * miniBatchSize)) * outVal;
+        }
+
+        // derivative
+        public double DLossFunction(double setValue, double targetValue)
+        {
+            return setValue - targetValue;
         }
     }
 }

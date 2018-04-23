@@ -13,9 +13,14 @@ namespace LicensPlateRecognition.Layer
             ;
         }
 
-        public override void FeedForward(double[][][] inMatrix)
+        public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
-            MaxPooling(inMatrix);
+            MaxPooling(matrix);
+        }
+
+        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        {
+            // TODO
         }
 
         public void MaxPooling(double[][][] inMatrix)
@@ -70,16 +75,6 @@ namespace LicensPlateRecognition.Layer
         }
 
         public override void RandInitLayerMat()
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(Image input)
-        {
-            throw new NotImplementedException();
-        }
-
-        public override void FeedForward(double[] input)
         {
             throw new NotImplementedException();
         }

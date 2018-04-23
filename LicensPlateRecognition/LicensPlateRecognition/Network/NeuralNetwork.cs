@@ -49,25 +49,26 @@ namespace LicensPlateRecognition.Network
             {
                 // shuffle training input
                 string[] rndTraining = trainingData.OrderBy(x => rnd.Next()).ToArray();
+                // forward pass
                 for (int i = 0; i < rndTraining.Length; i++)
                 {
                     for (int j = 0; j < network.Layers.Count; j++)
                     {
                         if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
                         {
-                            network.Layers[j].FeedForward(new Bitmap(rndTraining[i]));
+                            network.Layers[j].FeedForward(new Bitmap(rndTraining[i]), null, null);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
                         {
                             if (i == 0)
                                 network.Layers[j].RandInitFilter();
-                            network.Layers[j].FeedForward(network.Layers[j - 1].ImgMatrix);
+                            network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
                         {
-                            network.Layers[j].FeedForward(network.Layers[j - 1].ImgMatrix);
+                            network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
                             if (network.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
                                 network.Layers[j].Flattening();
                         }
@@ -81,13 +82,42 @@ namespace LicensPlateRecognition.Network
 
                             if (i == 0)
                                 network.Layers[j].RandInitLayerMat();
-                            network.Layers[j].FeedForward(network.Layers[j - 1].FlatArray);
+                            network.Layers[j].FeedForward(null, network.Layers[j - 1].FlatArray, null);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
                         {
-                            network.Layers[j].FeedForward(network.Layers[j - 1].FlatArray);
+                            network.Layers[j].FeedForward(null, network.Layers[j - 1].FlatArray, null);
                             network.Layers[j].PrintArray();
+                        }
+                    }
+
+                    // backward pass
+                    for (int j = network.Layers.Count - 1; j <= 0; j--)
+                    {
+                        if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
+                        {
+                            // TODO
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                        {
+                            // TODO
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                        {
+                            // TODO
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
+                            network.Layers[j].BackwardPass(network.Layers[j + 1].GradientArray, null);
+                        }
+
+                        if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                        {
+                            network.Layers[j].BackwardPass(null /*TODO: Soll Werte hier übergeben*/, null);
                         }
                     }
                 }
