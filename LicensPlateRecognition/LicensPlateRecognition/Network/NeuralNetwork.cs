@@ -112,12 +112,15 @@ namespace LicensPlateRecognition.Network
 
                         if (network.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
                         {
-                            network.Layers[j].BackwardPass(network.Layers[j + 1].GradientArray, null);
+                            if (network.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
+                                network.Layers[j].BackwardPass(network.Layers[j + 1].GradientArray, null, null);
+                            else
+                                network.Layers[j].BackwardPass(null, network.Layers[j + 1].GradientLayerMat, null);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
                         {
-                            network.Layers[j].BackwardPass(null /*TODO: Soll Werte hier übergeben*/, null);
+                            network.Layers[j].BackwardPass(null /*TODO: Sollwerte hier übergeben*/, null, null);
                         }
                     }
                 }

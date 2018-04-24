@@ -101,7 +101,7 @@ namespace LicensPlateRecognition.Layer
             Convolution(matrix);
         }
 
-        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] gradientArray, double[][] gradientLayerMat, double[][][] gradientMatrix)
         {
             // TODO
         }

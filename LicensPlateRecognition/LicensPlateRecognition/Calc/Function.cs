@@ -34,10 +34,16 @@ namespace LicensPlateRecognition.Calc
         }
 
         // derivative
-        public double DSoftmax(double inVal)
+        public double[] DSoftmax(double[] inArray)
         {
-            // TODO
-            return inVal;
+            inArray = Softmax(inArray);
+            double[] outArray = new double[inArray.Length];
+            for (int i = 0; i < inArray.Length; i++)
+            {
+                outArray[i] = inArray[i] * (1 - inArray[i]);
+            }
+
+            return outArray;
         }
 
         public double ReLU(double inVal)

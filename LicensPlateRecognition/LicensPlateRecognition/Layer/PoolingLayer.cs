@@ -18,7 +18,7 @@ namespace LicensPlateRecognition.Layer
             MaxPooling(matrix);
         }
 
-        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] gradientArray, double[][] gradientLayerMat, double[][][] gradientMatrix)
         {
             // TODO
         }

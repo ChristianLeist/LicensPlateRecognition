@@ -22,13 +22,14 @@ namespace LicensPlateRecognition.Layer
             ComputeOutput(flat);
         }
 
-        public override void BackwardPass(double[] setValueArray, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] setValueArray, double[][] gradientLayerMat, double[][][] gradientMatrix)
         {
             this.GradientArray = new double[this.outputArray.Length];
+            double[] DSoftmaxArray = activation.DSoftmax(this.FlatArray);
             for (int i = 0; i < this.outputArray.Length; i++)
             {
-                this.GradientArray[i] = activation.DLossFunction(this.outputArray[i], setValueArray[i]) * 
-                                                                activation.DSoftmax(this.FlatArray[i]);
+                this.GradientArray[i] = activation.DLossFunction(this.outputArray[i], setValueArray[i]) *
+                                                                                        DSoftmaxArray[i];
             }
         }
 
