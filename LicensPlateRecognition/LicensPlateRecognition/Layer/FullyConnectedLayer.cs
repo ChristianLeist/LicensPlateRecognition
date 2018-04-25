@@ -11,6 +11,7 @@ namespace LicensPlateRecognition.Layer
     {
         private double[][] layerMat;
         private double[] activationValueArray;
+        private double[] zValueArray;
         private RandomGaussNumberGen randNumGen;
         private Function activation;
 
@@ -37,58 +38,44 @@ namespace LicensPlateRecognition.Layer
             {
                 for (int x = 0; x < this.Width; x++)
                 {
+                    // unactivated values
+                    this.zValueArray[x] = flat[x];
                     // Relu activation of the neurons
                     this.FlatArray[x] = activation.ReLU(flat[x]);
                     // Fill activated value array
                     this.activationValueArray[x] = this.FlatArray[x];
-                    // Compute F = x * w + b
+                    // Compute a * w + b
                     this.FlatArray[x] += flat[y] * this.layerMat[x][y] + this.layerMat[x][this.Height - 1];
                 }
             }
         }
 
-        public override void BackwardPass(double[] gradientArray, double[][] gradientLayerMat, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] delta, double[][][] gradientMatrix)
         {
             this.GradientLayerMat = new double[this.Width][];
-            // compute gradients for output layer
-            if (gradientArray != null)
-            {
-                for (int y = 0; y < this.Height - 1; y++)
-                {
-                    for (int x = 0; x < this.Width; x++)
-                    {
-                        if (y == 0)
-                        {
-                            this.GradientLayerMat[x] = new double[this.Height];
-                        }
-                        this.GradientLayerMat[x][y] = gradientArray[x] * this.activationValueArray[y];
-                        // TODO: bias noch dazu geben
-                    }
-                }
-            }
-
+            // compute input gradients for layer + 1
             for (int y = 0; y < this.Height - 1; y++)
             {
                 for (int x = 0; x < this.Width; x++)
                 {
-                    /* for l in xrange(2, self.num_layers):
-                       z = zs[-l]
-                       sp = sigmoid_prime(z)
-                       delta = np.dot(self.weights[-l+1].transpose(), delta) * sp
-                       nabla_b[-l] = delta
-                       nabla_w[-l] = np.dot(delta, activations[-l-1].transpose()) */
-                    if (gradientArray == null)
+                    if (y == 0)
                     {
-                        if (y == 0)
-                        {
-                            this.GradientLayerMat[x] = new double[this.Height];
-                        }
-                        // TODO: gradienten mit gradientLayerMat berechnen
+                        this.GradientLayerMat[x] = new double[this.Height];
+                        this.GradientLayerMat[x][this.Height - 1] = delta[x];
                     }
-                    else
-                    {
-                        // TODO: gradienten mit this.GradientLayerMat berechnen
-                    }
+                    this.GradientLayerMat[x][y] = delta[x] * this.activationValueArray[y];
+                }
+            }
+
+            // compute delta for layer - 1
+            this.DeltaArray = new double[this.Height];
+            for (int y = 0; y < this.Height - 1; y++)
+            {
+                for (int x = 0; x < this.Width; x++)
+                {
+                    // delta = w * delta * derivative z
+                    // gradients add at branches
+                    this.DeltaArray[y] += this.layerMat[x][y] * delta[x] * activation.DReLU(this.zValueArray[y]);
                 }
             }
         }

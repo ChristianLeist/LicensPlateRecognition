@@ -34,7 +34,7 @@ namespace LicensPlateRecognition.Network
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*.jpg");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*.jpg");
 
-            // Declare network Layers
+            // Declare network layers: declare in order of traversion! Since it will be the order of the layers list in network class
             InputLayer inputLayer = new InputLayer(64, 64, 3, network);
             ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, inputLayer.Depth), 5, 2, network);
             ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(3, 3, convLayer1.Filters.Count), 10, 1, network);
@@ -107,20 +107,20 @@ namespace LicensPlateRecognition.Network
 
                         if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
                         {
-                            // TODO
+                            if(network.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                                network.Layers[j].BackwardPass(network.Layers[j + 1].DeltaArray, null);
+                            else
+                                network.Layers[j].BackwardPass(null, network.Layers[j + 1].DeltaMatrix);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
                         {
-                            if (network.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
-                                network.Layers[j].BackwardPass(network.Layers[j + 1].GradientArray, null, null);
-                            else
-                                network.Layers[j].BackwardPass(null, network.Layers[j + 1].GradientLayerMat, null);
+                            network.Layers[j].BackwardPass(network.Layers[j + 1].DeltaArray, null);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
                         {
-                            network.Layers[j].BackwardPass(null /*TODO: Sollwerte hier übergeben*/, null, null);
+                            network.Layers[j].BackwardPass(null /*TODO: Sollwerte hier übergeben*/, null);
                         }
                     }
                 }
