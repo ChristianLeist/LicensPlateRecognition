@@ -10,7 +10,7 @@ namespace LicensPlateRecognition.Layer
     {
         protected NeuralNetwork neuralNetwork;
         public double[][][] ImgMatrix { get; protected set; }
-        public double[][][] GradientMatrix { get; protected set; }
+        public double[][][] FilterMatrix { get; protected set; }
         public double[][][] DeltaMatrix { get; protected set; }
         public double[][] GradientLayerMat { get; protected set; }
         public double[] FlatArray { get; protected set; }
@@ -69,7 +69,7 @@ namespace LicensPlateRecognition.Layer
             int heigth = this.ImgMatrix[0].Length;
             int depth = this.ImgMatrix[0][0].Length;
 
-            this.GradientMatrix = this.ImgMatrix;
+            this.DeltaMatrix = this.ImgMatrix;
             for (int i = 0; i < depth; i++)
             {
                 int index = i;
@@ -77,7 +77,7 @@ namespace LicensPlateRecognition.Layer
                 index -= (z * width * heigth);
                 int y = index / width;
                 int x = index % width;
-                this.GradientMatrix[x][y][z] = this.DeltaArray[i];
+                this.DeltaMatrix[x][y][z] = this.DeltaArray[i];
             }
         }
     }

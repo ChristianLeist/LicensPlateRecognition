@@ -50,7 +50,7 @@ namespace LicensPlateRecognition.Layer
             }
         }
 
-        public override void BackwardPass(double[] delta, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
             this.GradientLayerMat = new double[this.Width][];
             // compute input gradients for layer + 1
@@ -61,9 +61,9 @@ namespace LicensPlateRecognition.Layer
                     if (y == 0)
                     {
                         this.GradientLayerMat[x] = new double[this.Height];
-                        this.GradientLayerMat[x][this.Height - 1] = delta[x];
+                        this.GradientLayerMat[x][this.Height - 1] = deltaArray[x];
                     }
-                    this.GradientLayerMat[x][y] = delta[x] * this.activationValueArray[y];
+                    this.GradientLayerMat[x][y] = deltaArray[x] * this.activationValueArray[y];
                 }
             }
 
@@ -75,7 +75,7 @@ namespace LicensPlateRecognition.Layer
                 {
                     // delta = w * delta * derivative z
                     // gradients add at branches
-                    this.DeltaArray[y] += this.layerMat[x][y] * delta[x] * activation.DReLU(this.zValueArray[y]);
+                    this.DeltaArray[y] += this.layerMat[x][y] * deltaArray[x] * activation.DReLU(this.zValueArray[y]);
                 }
             }
         }

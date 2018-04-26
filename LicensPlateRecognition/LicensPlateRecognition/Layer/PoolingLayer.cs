@@ -22,13 +22,13 @@ namespace LicensPlateRecognition.Layer
             MaxPooling();
         }
 
-        public override void BackwardPass(double[] delta, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
-            if (delta != null)
+            if (deltaArray != null)
             {
-                this.DeltaArray = delta;
+                this.DeltaArray = deltaArray;
                 this.DeFlattening();
-                gradientMatrix = this.GradientMatrix;
+                deltaMatrix = this.DeltaMatrix;
             }
 
             int width = this.inMatrix.Length / this.stride;
@@ -57,10 +57,14 @@ namespace LicensPlateRecognition.Layer
                         {
                             for (int j = 0; j < stride; j++)
                             {
-                                // if more than one max value, all are used to backpropagate gradients else null value in matrix
+                                // if more than one max value, all are used to backpropagate gradients else 0 value in matrix
                                 if (this.inMatrix[x * this.stride + j][y * this.stride + i][z] == this.ImgMatrix[x][y][z])
                                 {
-                                    outMatrix[x * this.stride + j][y * this.stride + i][z] = gradientMatrix[x][y][z];
+                                    outMatrix[x * this.stride + j][y * this.stride + i][z] = deltaMatrix[x][y][z];
+                                }
+                                else
+                                {
+                                    outMatrix[x * this.stride + j][y * this.stride + i][z] = 0;
                                 }
                             }
                         }
@@ -68,7 +72,7 @@ namespace LicensPlateRecognition.Layer
                 }
             }
 
-            gradientMatrix = outMatrix;
+            this.DeltaMatrix = outMatrix;
         }
 
         public void MaxPooling()

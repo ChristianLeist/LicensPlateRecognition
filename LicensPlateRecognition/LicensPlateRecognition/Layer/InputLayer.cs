@@ -28,7 +28,7 @@ namespace LicensPlateRecognition.Layer
             LoadImage(ResizeImage(img));
         }
 
-        public override void BackwardPass(double[] gradientArray, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
             // TODO
         }

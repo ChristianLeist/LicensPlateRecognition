@@ -22,7 +22,7 @@ namespace LicensPlateRecognition.Layer
             ComputeOutput(flat);
         }
 
-        public override void BackwardPass(double[] setValueArray, double[][][] gradientMatrix)
+        public override void BackwardPass(double[] setValueArray, double[][][] deltaMatrix)
         {
             this.DeltaArray = new double[this.outputArray.Length];
             double[] DSoftmaxArray = activation.DSoftmax(this.FlatArray);
