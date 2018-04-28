@@ -97,7 +97,7 @@ namespace LicensPlateRecognition.Network
                     {
                         if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
                         {
-                            // TODO
+                            network.Layers[j].BackwardPass(null, network.Layers[j + 1].DeltaMatrix);
                         }
 
                         if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))

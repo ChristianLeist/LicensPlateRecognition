@@ -30,7 +30,7 @@ namespace LicensPlateRecognition.Layer
 
         public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
-            // TODO
+            Console.WriteLine("Backwardpass done!");
         }
 
         public void LoadImage(Bitmap inputImg)
