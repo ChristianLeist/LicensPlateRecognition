@@ -6,43 +6,21 @@ namespace LicensPlateRecognition.Kernel
 {
     class Filter
     {
-        private double[][][] filterMat;
-        private int width, depth, heigth;
-        private double bias;
+        public double[][][] FilterMat { get; set; }
+        public double[][][] FilterGradientMat { get; set; }
+        public double Bias { get; set; }
+        public double BiasGradient { get; set; }
+        public int Width { get; }
+        public int Depth { get; }
+        public int Height { get; }
 
         public Filter(int width, int heigth, int depth)
         {
-            this.width = width;
-            this.heigth = heigth;
-            this.depth = depth;
-            this.filterMat = new double[width][][];
-        }
-
-        public int Width
-        {
-            get => this.width;
-        }
-
-        public int Height
-        {
-            get => this.heigth;
-        }
-
-        public int Depth
-        {
-            get => this.depth;
-        }
-
-        public double[][][] FilterMat
-        {
-            get => this.filterMat;
-            set => this.filterMat = value;
-        }
-
-        public double Bias
-        {
-            get => this.bias;
-            set => this.bias = value;
+            this.Width = width;
+            this.Height = heigth;
+            this.Depth = depth;
+            this.FilterMat = new double[width][][];
+            this.FilterGradientMat = new double[width][][];
         }
     }
 }

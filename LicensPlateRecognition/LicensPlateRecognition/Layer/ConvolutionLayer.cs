@@ -113,9 +113,9 @@ namespace LicensPlateRecognition.Layer
             int border = (f - 1) / 2;
             this.activationValueMatrix = ZeroPadding(this.activationValueMatrix, border);
 
-            int width = this.activationValueMatrix.Length;
-            int height = this.activationValueMatrix[0].Length;
-            int depth = this.activationValueMatrix[0][0].Length;
+            int width = deltaMatrix.Length;
+            int height = deltaMatrix[0].Length;
+            int depth = this.Filters.Count;
 
             for (int z = 0; z < depth; z++)
             {
@@ -123,6 +123,16 @@ namespace LicensPlateRecognition.Layer
                 {
                     for (int x = 0; x < width; x++)
                     {
+                        // init DeltaMatrix
+                        if (z == 0)
+                        {
+                            if (y == 0)
+                            {
+                                this.DeltaMatrix[x] = new double[x * this.stride][];
+                            }
+                            this.DeltaMatrix[x][y] = new double[y * this.stride];
+                        }
+
                         // filter loop
                         for (int d = 0; d < filterDepth; d++)
                         {
@@ -130,22 +140,17 @@ namespace LicensPlateRecognition.Layer
                             {
                                 for (int w = 0; w < f; w++)
                                 {
-                                    // TODO: mit jedem z vom filter einzeln über ein z in activationValueMatrix und deltaMatrix,
-                                    //       dann nächsten filter nehmen und ein z weiter in activValMat und deltaMat, bis 
-                                    //       alle filter durchlaufen sind. Dabei FilterMatrix aktualisieren mit:
-                                    //       f += delta * activationValue
-                                    //       bias im filter += delta
-                                    //       vorsicht: deltaMatrix kleiner als activonValueMMatrix also wie bei convolution durchlaufen
-                                    //                 ergo, loop parameter anpassen
+                                    this.Filters[z].FilterGradientMat[w][h][d] += deltaMatrix[x][y][z] * 
+                                    this.activationValueMatrix[this.stride * x + w][this.stride * y + h][d];
+                                    this.Filters[z].BiasGradient += deltaMatrix[x][y][z];
+                                    this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z] * 
+                                    activation.DReLU(this.activationValueMatrix[this.stride * x + w][this.stride * y + h][d]);
                                 }
                             }
                         }
                     }
                 }
             }
-
-            // TODO: delta berechnen: w * d * d_z
-            //       eventuell in obiger schleife machen
         }
 
         public void Convolution(double[][][] inMatrix)
@@ -274,8 +279,10 @@ namespace LicensPlateRecognition.Layer
                             {
                                 if (y == 0)
                                 {
+                                    filter.FilterGradientMat[x] = new double[filter.Height][];
                                     filter.FilterMat[x] = new double[filter.Height][];
                                 }
+                                filter.FilterGradientMat[x][y] = new double[filter.Depth];
                                 filter.FilterMat[x][y] = new double[filter.Depth];
                             }
 

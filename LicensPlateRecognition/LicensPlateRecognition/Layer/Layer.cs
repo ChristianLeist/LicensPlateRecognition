@@ -10,7 +10,6 @@ namespace LicensPlateRecognition.Layer
     {
         protected NeuralNetwork neuralNetwork;
         public double[][][] ImgMatrix { get; protected set; }
-        public double[][][] FilterMatrix { get; protected set; }
         public double[][][] DeltaMatrix { get; protected set; }
         public double[][] GradientLayerMat { get; protected set; }
         public double[] FlatArray { get; protected set; }
