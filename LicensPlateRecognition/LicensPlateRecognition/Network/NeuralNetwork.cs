@@ -52,11 +52,18 @@ namespace LicensPlateRecognition.Network
             {
                 // just needed once to create a csv with tuple of image and class value
                 // uncomment if you want to create the traning data
-                network.CreateCSV(imageFilePath, trainingData, "training.csv");
+                //network.CreateCSV(imageFilePath, trainingData, "training.csv");
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
                 // shuffle training input
+                var list = keyValuePairs.Keys.ToList();
+                list.OrderBy(x => rnd.Next());
+
+                foreach (var key in list)
+                {
+                    // TODO: create new random dictionary
+                }
                 string[] rndTraining = trainingData.OrderBy(x => rnd.Next()).ToArray();
                 // forward pass
                 for (int i = 0; i < rndTraining.Length; i++)
