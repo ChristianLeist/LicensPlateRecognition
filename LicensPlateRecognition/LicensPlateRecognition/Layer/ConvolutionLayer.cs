@@ -4,9 +4,6 @@ using LicensPlateRecognition.Network;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Drawing.Imaging;
-using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -101,7 +98,6 @@ namespace LicensPlateRecognition.Layer
         public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
             this.zValueMatrix = matrix;
-            this.activationValueMatrix = matrix;
             Convolution(matrix);
         }
 
@@ -117,6 +113,8 @@ namespace LicensPlateRecognition.Layer
             int height = deltaMatrix[0].Length;
             int depth = this.Filters.Count;
 
+            this.DeltaMatrix = new double[width * this.stride][][];
+
             for (int z = 0; z < depth; z++)
             {
                 for (int y = 0; y < height; y++)
@@ -126,11 +124,17 @@ namespace LicensPlateRecognition.Layer
                         // init DeltaMatrix
                         if (z == 0)
                         {
-                            if (y == 0)
+                            for (int i = 0; i < this.stride; i++)
                             {
-                                this.DeltaMatrix[x] = new double[x * this.stride][];
+                                for (int j = 0; j < this.stride; j++)
+                                {
+                                    if (y + i == 0)
+                                    {
+                                        this.DeltaMatrix[x * this.stride + j] = new double[height * this.stride][];
+                                    }
+                                    this.DeltaMatrix[x * this.stride + j][y * this.stride + i] = new double[filterDepth];
+                                }
                             }
-                            this.DeltaMatrix[x][y] = new double[y * this.stride];
                         }
 
                         // filter loop
@@ -140,11 +144,14 @@ namespace LicensPlateRecognition.Layer
                             {
                                 for (int w = 0; w < f; w++)
                                 {
-                                    this.Filters[z].FilterGradientMat[w][h][d] += deltaMatrix[x][y][z] * 
+                                    // compute filter weight gradients and bias gradients for layer
+                                    this.Filters[z].FilterGradientMat[w][h][d] += deltaMatrix[x][y][z] *
                                     this.activationValueMatrix[this.stride * x + w][this.stride * y + h][d];
                                     this.Filters[z].BiasGradient += deltaMatrix[x][y][z];
-                                    this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z] * 
-                                    activation.DReLU(this.activationValueMatrix[this.stride * x + w][this.stride * y + h][d]);
+
+                                    // compute delta gradients for layer - 1
+                                    this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z] *
+                                    activation.DReLU(this.zValueMatrix[this.stride * x][this.stride * y][d]);
                                 }
                             }
                         }
@@ -167,6 +174,7 @@ namespace LicensPlateRecognition.Layer
             int outDepth = this.Filters.Count;
 
             double[][][] outMatrix = new double[outWidth][][];
+            this.activationValueMatrix = new double[this.zValueMatrix.Length][][];
 
             // Loop over Filters
             for (int z = 0; z < outDepth; z++)
@@ -187,14 +195,27 @@ namespace LicensPlateRecognition.Layer
                         }
 
                         // ReLU activation
-                        for (int k = 0; k < this.zValueMatrix[0][0].Length; k++)
+                        if (z == 0)
                         {
-                            for (int i = 0; i < this.stride; i++)
+                            for (int k = 0; k < this.zValueMatrix[0][0].Length; k++)
                             {
-                                for (int j = 0; j < this.stride; j++)
+                                for (int i = 0; i < this.stride; i++)
                                 {
-                                    this.activationValueMatrix[this.stride * x + j][this.stride * y + i][k] =
-                                    activation.ReLU(this.zValueMatrix[this.stride * x + j][this.stride * y + i][k]);
+                                    for (int j = 0; j < this.stride; j++)
+                                    {
+                                        // init activationValueMatrix
+                                        if (k == 0)
+                                        {
+                                            if (y + i == 0)
+                                            {
+                                                this.activationValueMatrix[x * this.stride + j] = new double[this.zValueMatrix[0].Length][];
+                                            }
+                                            this.activationValueMatrix[x * this.stride + j][y * this.stride + i] = new double[this.zValueMatrix[0][0].Length];
+                                        }
+
+                                        this.activationValueMatrix[this.stride * x + j][this.stride * y + i][k] =
+                                        activation.ReLU(this.zValueMatrix[this.stride * x + j][this.stride * y + i][k]);
+                                    }
                                 }
                             }
                         }

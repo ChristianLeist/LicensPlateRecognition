@@ -1,8 +1,6 @@
 ﻿using LicensPlateRecognition.Network;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -36,6 +34,7 @@ namespace LicensPlateRecognition.Layer
             int depth = this.inMatrix[0][0].Length;
 
             double[][][] outMatrix = new double[width * this.stride][][];
+
             // undo max pooling, but with gradient value at max value position and rest null
             for (int z = 0; z < depth; z++)
             {
@@ -43,20 +42,20 @@ namespace LicensPlateRecognition.Layer
                 {
                     for (int x = 0; x < width; x++)
                     {
-                        // init outMatrix
-                        if (z == 0)
-                        {
-                            if (y == 0)
-                            {
-                                outMatrix[x] = new double[heigth * stride][];
-                            }
-                            outMatrix[x][y] = new double[depth];
-                        }
-
                         for (int i = 0; i < stride; i++)
                         {
                             for (int j = 0; j < stride; j++)
                             {
+                                // init outMatrix
+                                if (z == 0)
+                                {
+                                    if (y + i == 0)
+                                    {
+                                        outMatrix[x * this.stride + j] = new double[heigth * this.stride][];
+                                    }
+                                    outMatrix[x * this.stride + j][y * this.stride + i] = new double[depth];
+                                }
+
                                 // if more than one max value, all are used to backpropagate gradients else 0 value in matrix
                                 if (this.inMatrix[x * this.stride + j][y * this.stride + i][z] == this.ImgMatrix[x][y][z])
                                 {

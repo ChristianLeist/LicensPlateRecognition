@@ -1,9 +1,7 @@
 ﻿using LicensPlateRecognition.Calc;
 using LicensPlateRecognition.Network;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {

@@ -1,8 +1,6 @@
 ﻿using LicensPlateRecognition.Network;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -48,6 +46,7 @@ namespace LicensPlateRecognition.Layer
             int depth = this.ImgMatrix[0][0].Length;
 
             this.FlatArray = new double[width * heigth * depth];
+            this.DeltaMatrix = new double[width][][];
 
             for (int z = 0; z < depth; z++)
             {
@@ -55,6 +54,16 @@ namespace LicensPlateRecognition.Layer
                 {
                     for (int x = 0; x < width; x++)
                     {
+                        // init delta matrix
+                        if (z == 0)
+                        {
+                            if (y == 0)
+                            {
+                                this.DeltaMatrix[x] = new double[heigth][];
+                            }
+                            this.DeltaMatrix[x][y] = new double[depth];
+                        }
+
                         this.FlatArray[x + width * (y + heigth * z)] = this.ImgMatrix[x][y][z];
                     }
                 }
@@ -66,9 +75,8 @@ namespace LicensPlateRecognition.Layer
         {
             int width = this.ImgMatrix.Length;
             int heigth = this.ImgMatrix[0].Length;
-            int depth = this.ImgMatrix[0][0].Length;
+            int depth = this.DeltaArray.Length;
 
-            this.DeltaMatrix = this.ImgMatrix;
             for (int i = 0; i < depth; i++)
             {
                 int index = i;

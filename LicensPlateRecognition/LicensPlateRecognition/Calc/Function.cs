@@ -17,17 +17,17 @@ namespace LicensPlateRecognition.Calc
 
             for (int i = 0; i < length; i++)
             {
-                classArray[i] -= ar[length - 1];
+                ar[i] -= ar[length - 1];
             }
 
             for (int i = 0; i < length; i++)
             {
-                denom += Math.Pow(Math.E, classArray[i]);
+                denom += Math.Pow(Math.E, ar[i]);
             }
 
             for (int i = 0; i < length; i++)
             {
-                ar[i] = Math.Pow(Math.E, classArray[i]) / denom;
+                ar[i] = Math.Pow(Math.E, ar[i]) / denom;
             }
 
             return ar;
@@ -40,7 +40,17 @@ namespace LicensPlateRecognition.Calc
             double[] outArray = new double[inArray.Length];
             for (int i = 0; i < inArray.Length; i++)
             {
-                outArray[i] = inArray[i] * (1 - inArray[i]);
+                for (int j = 0; j < 1; j++)
+                {
+                    if (i == j)
+                    {
+                        outArray[i] = inArray[i] * (1 - inArray[i]);
+                    }
+                    else
+                    {
+                        outArray[i] = inArray[i] * -inArray[i];
+                    }
+                }
             }
 
             return outArray;

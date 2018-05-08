@@ -1,9 +1,7 @@
 ﻿using LicensPlateRecognition.Calc;
 using LicensPlateRecognition.Network;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -29,23 +27,22 @@ namespace LicensPlateRecognition.Layer
             // width = number of neurons in next layer
             this.Width = width;
             this.FlatArray = new double[width];
-            this.activationValueArray = new double[width];
+            this.activationValueArray = new double[height];
         }
 
         public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
+            // unactivated values
+            this.zValueArray = flat;
+
             for (int y = 0; y < this.Height - 1; y++)
             {
                 for (int x = 0; x < this.Width; x++)
                 {
-                    // unactivated values
-                    this.zValueArray[x] = flat[x];
-                    // Relu activation of the neurons
-                    this.FlatArray[x] = activation.ReLU(flat[x]);
                     // Fill activated value array
-                    this.activationValueArray[x] = this.FlatArray[x];
+                    this.activationValueArray[y] = activation.ReLU(flat[y]);
                     // Compute a * w + b
-                    this.FlatArray[x] += flat[y] * this.layerMat[x][y] + this.layerMat[x][this.Height - 1];
+                    this.FlatArray[x] += this.activationValueArray[y] * this.layerMat[x][y] + this.layerMat[x][this.Height - 1];
                 }
             }
         }
@@ -68,7 +65,7 @@ namespace LicensPlateRecognition.Layer
             }
 
             // compute delta for layer - 1
-            this.DeltaArray = new double[this.Height];
+            this.DeltaArray = new double[this.Height - 1];
             for (int y = 0; y < this.Height - 1; y++)
             {
                 for (int x = 0; x < this.Width; x++)

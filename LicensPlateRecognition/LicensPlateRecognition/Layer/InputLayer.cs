@@ -1,11 +1,9 @@
 ﻿using LicensPlateRecognition.Network;
 using System;
-using System.Collections.Generic;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using System.Runtime.InteropServices;
-using System.Text;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -65,7 +63,7 @@ namespace LicensPlateRecognition.Layer
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
                         this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin /
-                                                                    (this.inRangeMax - this.inRangeMin);
+                                                                    (this.inRangeMax - this.inRangeMin); // normalization
                     }
                 }
             }
