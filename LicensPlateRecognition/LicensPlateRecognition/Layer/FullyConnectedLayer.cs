@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace LicensPlateRecognition.Layer
 {
-    class FullyConnectedLayer : Layer
+    public class FullyConnectedLayer : Layer
     {
         private double[][] layerMat;
         private double[] activationValueArray;
@@ -93,6 +93,16 @@ namespace LicensPlateRecognition.Layer
                     this.layerMat[x][y] = this.randNumGen.CreateRandomNum();
                 }
             }
+        }
+
+        public override void StoreWeights()
+        {
+            // TODO
+        }
+
+        public override void LoadWeights()
+        {
+            // TODO
         }
 
         public override void RandInitFilter()

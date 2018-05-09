@@ -4,16 +4,21 @@ using LicensPlateRecognition.Network;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
+using System.IO;
+using System.Xml;
+using System.Xml.Serialization;
 
 namespace LicensPlateRecognition.Layer
 {
-    class ConvolutionLayer : Layer
+    public class ConvolutionLayer : Layer
     {
-        public List<Filter> Filters { get; }
+        public List<Filter> Filters { get; private set; }
         private int stride;
         private double[][][] zValueMatrix;
         private double[][][] activationValueMatrix;
         private Function activation;
+
+        private ConvolutionLayer(NeuralNetwork network) : base(network) { } // standard constructor
 
         public ConvolutionLayer(Filter filter, int numberOfFilters, int stride, NeuralNetwork network) : base(network)
         {
@@ -315,6 +320,26 @@ namespace LicensPlateRecognition.Layer
                     }
                     //Console.WriteLine();
                 }
+            }
+        }
+
+        public override void StoreWeights()
+        {
+            XmlSerializer writer = new XmlSerializer(typeof(List<Filter>));
+
+            using (FileStream file = File.OpenWrite(this.ToString() + this.LayerNum.ToString() + ".xml"))
+            {
+                writer.Serialize(file, this.Filters);
+            }
+        }
+
+        public override void LoadWeights()
+        {
+            XmlSerializer reader = new XmlSerializer(typeof(List<Filter>));
+
+            using (FileStream file = File.OpenRead(this.ToString() + this.LayerNum.ToString() + ".xml"))
+            {
+                this.Filters = (List<Filter>)reader.Deserialize(file);
             }
         }
 

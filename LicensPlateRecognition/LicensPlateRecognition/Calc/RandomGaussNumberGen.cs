@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LicensPlateRecognition.Calc
 {
-    class RandomGaussNumberGen
+    public class RandomGaussNumberGen
     {
         private Random rand;
         private int mean;

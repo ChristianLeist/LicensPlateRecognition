@@ -9,9 +9,9 @@ using System.Linq;
 
 namespace LicensPlateRecognition.Network
 {
-    class Program
+    public class Program
     {
-        static void Main(string[] args)
+        public static void Main(string[] args)
         {
             NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 0.1);
             Random rnd = new Random();
@@ -84,6 +84,8 @@ namespace LicensPlateRecognition.Network
                         if (i == 0)
                             network.Layers[j].RandInitFilter();
                         network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
+                        // speicher test
+                        network.Layers[j].StoreWeights();
                     }
 
                     if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
@@ -118,6 +120,7 @@ namespace LicensPlateRecognition.Network
                     if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
                     {
                         network.Layers[j].BackwardPass(null, network.Layers[j + 1].DeltaMatrix);
+                        network.PrintMatrix(network.Layers[j].DeltaMatrix);
                     }
 
                     if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))

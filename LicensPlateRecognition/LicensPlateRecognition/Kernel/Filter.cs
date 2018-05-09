@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LicensPlateRecognition.Kernel
 {
-    class Filter
+    public class Filter
     {
         public double[][][] FilterMat { get; set; }
         public double[][][] FilterGradientMat { get; set; }
@@ -13,6 +13,8 @@ namespace LicensPlateRecognition.Kernel
         public int Width { get; }
         public int Depth { get; }
         public int Height { get; }
+
+        private Filter() { } // standard constructor
 
         public Filter(int width, int heigth, int depth)
         {

@@ -5,7 +5,7 @@ using System.Drawing;
 
 namespace LicensPlateRecognition.Layer
 {
-    class OutputLayer : Layer
+    public class OutputLayer : Layer
     {
         private Function activation;
         private double[] outputArray;
@@ -58,6 +58,16 @@ namespace LicensPlateRecognition.Layer
         }
 
         public override void InitLayer(int height, int width)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void StoreWeights()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LoadWeights()
         {
             throw new NotImplementedException();
         }

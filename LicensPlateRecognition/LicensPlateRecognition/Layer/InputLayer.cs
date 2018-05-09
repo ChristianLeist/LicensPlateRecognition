@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 
 namespace LicensPlateRecognition.Layer
 {
-    class InputLayer : Layer
+    public class InputLayer : Layer
     {
         private int inRangeMin, inRangeMax;
 
@@ -28,6 +28,7 @@ namespace LicensPlateRecognition.Layer
 
         public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
+            this.DeltaMatrix = deltaMatrix;
             Console.WriteLine("Backwardpass done!");
         }
 
@@ -110,6 +111,16 @@ namespace LicensPlateRecognition.Layer
         }
 
         public override void RandInitLayerMat()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void StoreWeights()
+        {
+            throw new NotImplementedException();
+        }
+
+        public override void LoadWeights()
         {
             throw new NotImplementedException();
         }

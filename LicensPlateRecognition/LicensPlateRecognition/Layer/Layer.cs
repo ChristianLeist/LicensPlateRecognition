@@ -4,8 +4,10 @@ using System.Drawing;
 
 namespace LicensPlateRecognition.Layer
 {
-    abstract class Layer
+    public abstract class Layer
     {
+        public static int LayerCount { get; private set; }
+        public int LayerNum { get; private set; }
         protected NeuralNetwork neuralNetwork;
         public double[][][] ImgMatrix { get; protected set; }
         public double[][][] DeltaMatrix { get; protected set; }
@@ -20,6 +22,8 @@ namespace LicensPlateRecognition.Layer
         {
             this.neuralNetwork = neuralNetwork;
             neuralNetwork.Layers.Add(this);
+            LayerCount++;
+            this.LayerNum = LayerCount;
         }
 
         // used in conv layer
@@ -37,6 +41,10 @@ namespace LicensPlateRecognition.Layer
         public abstract void FeedForward(Image img, double[] flat, double[][][] matrix);
 
         public abstract void BackwardPass(double[] deltaArray, double[][][] deltaMatrix);
+
+        public abstract void StoreWeights();
+
+        public abstract void LoadWeights();
 
         // used before fc layer
         public void Flattening()

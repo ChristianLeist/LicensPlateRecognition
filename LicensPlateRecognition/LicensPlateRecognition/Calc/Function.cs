@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LicensPlateRecognition.Calc
 {
-    class Function
+    public class Function
     {
         public double[] Softmax(double[] classArray)
         {

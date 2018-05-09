@@ -7,7 +7,7 @@ using System.Linq;
 
 namespace LicensPlateRecognition.Network
 {
-    class NeuralNetwork
+    public class NeuralNetwork
     {
         public List<Layer.Layer> Layers { get; }
         public ExecMode ExecMode { get; }

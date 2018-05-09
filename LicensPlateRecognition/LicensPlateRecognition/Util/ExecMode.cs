@@ -4,7 +4,7 @@ using System.Text;
 
 namespace LicensPlateRecognition.Util
 {
-    enum ExecMode
+    public enum ExecMode
     {
         Learning,
         Testing,
