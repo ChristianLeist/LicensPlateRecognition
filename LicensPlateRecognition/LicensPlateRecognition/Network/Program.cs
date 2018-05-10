@@ -13,7 +13,7 @@ namespace LicensPlateRecognition.Network
     {
         public static void Main(string[] args)
         {
-            NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 0.1);
+            NeuralNetwork network = new NeuralNetwork(ExecMode.Normal, 0.1);
             Random rnd = new Random();
             string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*.jpg");
@@ -60,7 +60,10 @@ namespace LicensPlateRecognition.Network
 
             if (network.ExecMode == ExecMode.Normal)
             {
-                ForwardPass();
+                // training data
+                network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
+
+                ForwardPass(network, outClass, keyValuePairs.ElementAt(0).Key);
             }
 
             Console.WriteLine("Press any key to continue...");
@@ -82,10 +85,12 @@ namespace LicensPlateRecognition.Network
                     if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
                     {
                         if (i == 0)
+                        {
                             network.Layers[j].RandInitFilter();
+                            // speicher test
+                            network.Layers[j].StoreWeights();
+                        }
                         network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
-                        // speicher test
-                        network.Layers[j].StoreWeights();
                     }
 
                     if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
@@ -103,7 +108,11 @@ namespace LicensPlateRecognition.Network
                             network.Layers[j].InitLayer(network.Layers[j - 1].FlatArray.Length, network.Layers[j - 1].FlatArray.Length);
 
                         if (i == 0)
+                        {
                             network.Layers[j].RandInitLayerMat();
+                            // speicher test
+                            network.Layers[j].StoreWeights();
+                        }
                         network.Layers[j].FeedForward(null, network.Layers[j - 1].FlatArray, null);
                     }
 
@@ -154,9 +163,47 @@ namespace LicensPlateRecognition.Network
             // TODO: Testbetrieb
         }
 
-        public static void ForwardPass()
+        public static void ForwardPass(NeuralNetwork network, int outClass, string input)
         {
-            // TODO: Produktivbetrieb
+            for (int j = 0; j < network.Layers.Count; j++)
+            {
+                if (network.Layers[j].GetType().Equals(typeof(InputLayer)))
+                {
+                    network.Layers[j].FeedForward(new Bitmap(input), null, null);
+                }
+
+                if (network.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                {
+                    network.Layers[j].LoadWeights();
+
+                    network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
+                }
+
+                if (network.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                {
+                    network.Layers[j].FeedForward(null, null, network.Layers[j - 1].ImgMatrix);
+                    if (network.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                        network.Layers[j].Flattening();
+                }
+
+                if (network.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                {
+                    network.Layers[j].LoadWeights();
+
+                    if (network.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
+                        network.Layers[j].InitLayer(network.Layers[j - 1].FlatArray.Length, outClass);
+                    else
+                        network.Layers[j].InitLayer(network.Layers[j - 1].FlatArray.Length, network.Layers[j - 1].FlatArray.Length);
+
+                    network.Layers[j].FeedForward(null, network.Layers[j - 1].FlatArray, null);
+                }
+
+                if (network.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                {
+                    network.Layers[j].FeedForward(null, network.Layers[j - 1].FlatArray, null);
+                    network.Layers[j].PrintArray();
+                }
+            }
         }
 
     }

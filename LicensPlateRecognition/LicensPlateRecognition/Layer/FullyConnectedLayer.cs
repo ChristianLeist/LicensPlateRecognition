@@ -2,6 +2,8 @@
 using LicensPlateRecognition.Network;
 using System;
 using System.Drawing;
+using System.IO;
+using System.Xml.Serialization;
 
 namespace LicensPlateRecognition.Layer
 {
@@ -97,12 +99,22 @@ namespace LicensPlateRecognition.Layer
 
         public override void StoreWeights()
         {
-            // TODO
+            XmlSerializer writer = new XmlSerializer(typeof(double[][]));
+
+            using (FileStream file = File.OpenWrite(this.ToString() + this.LayerNum.ToString() + ".xml"))
+            {
+                writer.Serialize(file, this.layerMat);
+            }
         }
 
         public override void LoadWeights()
         {
-            // TODO
+            XmlSerializer reader = new XmlSerializer(typeof(double[][]));
+
+            using (FileStream file = File.OpenRead(this.ToString() + this.LayerNum.ToString() + ".xml"))
+            {
+                this.layerMat = (double[][])reader.Deserialize(file);
+            }
         }
 
         public override void RandInitFilter()
