@@ -5,7 +5,6 @@ using System;
 using System.Collections.Generic;
 using System.Drawing;
 using System.IO;
-using System.Xml;
 using System.Xml.Serialization;
 
 namespace LicensPlateRecognition.Layer
@@ -245,11 +244,29 @@ namespace LicensPlateRecognition.Layer
 
                             // fill
                             filter.FilterMat[x][y][z] = randNumGen.CreateRandomNum();
-                            //Console.Write(filter.FilterMat[x][y][z] + " ");
                         }
-                        //Console.WriteLine();
                     }
-                    //Console.WriteLine();
+                }
+            }
+        }
+
+        // stochastic gradient descent weight update
+        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        {
+            foreach (Filter filter in this.Filters)
+            {
+                filter.Bias -= (learningRate / miniBatchSize) * filter.BiasGradient;
+                filter.BiasGradient = 0;
+                for (int z = 0; z < filter.Depth; z++)
+                {
+                    for (int y = 0; y < filter.Height; y++)
+                    {
+                        for (int x = 0; x < filter.Width; x++)
+                        {
+                            filter.FilterMat[x][y][z] -= (learningRate / miniBatchSize) * filter.FilterGradientMat[x][y][z];
+                            filter.FilterGradientMat[x][y][z] = 0;
+                        }
+                    }
                 }
             }
         }

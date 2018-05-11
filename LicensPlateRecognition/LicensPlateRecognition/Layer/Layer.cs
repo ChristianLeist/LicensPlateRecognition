@@ -1,5 +1,4 @@
 ﻿using LicensPlateRecognition.Network;
-using System;
 using System.Drawing;
 
 namespace LicensPlateRecognition.Layer
@@ -11,7 +10,6 @@ namespace LicensPlateRecognition.Layer
         protected NeuralNetwork neuralNetwork;
         public double[][][] ImgMatrix { get; protected set; }
         public double[][][] DeltaMatrix { get; protected set; }
-        public double[][] GradientLayerMat { get; protected set; }
         public double[] FlatArray { get; protected set; }
         public double[] DeltaArray { get; protected set; }
         public int Width { get; protected set; }
@@ -42,9 +40,14 @@ namespace LicensPlateRecognition.Layer
 
         public abstract void BackwardPass(double[] deltaArray, double[][][] deltaMatrix);
 
+        // used in conv and fc layer
         public abstract void StoreWeights();
 
+        // used in conv and fc layer
         public abstract void LoadWeights();
+
+        // used in conv and fc layer
+        public abstract void UpdateWeights(double learningRate, int miniBatchSize);
 
         // used before fc layer
         public void Flattening()

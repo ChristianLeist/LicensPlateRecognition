@@ -10,6 +10,7 @@ namespace LicensPlateRecognition.Layer
     public class FullyConnectedLayer : Layer
     {
         private double[][] layerMat;
+        private double[][] gradientLayerMat;
         private double[] activationValueArray;
         private double[] zValueArray;
         private RandomGaussNumberGen randNumGen;
@@ -51,7 +52,6 @@ namespace LicensPlateRecognition.Layer
 
         public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
-            this.GradientLayerMat = new double[this.Width][];
             // compute input gradients for layer + 1
             for (int y = 0; y < this.Height - 1; y++)
             {
@@ -59,10 +59,10 @@ namespace LicensPlateRecognition.Layer
                 {
                     if (y == 0)
                     {
-                        this.GradientLayerMat[x] = new double[this.Height];
-                        this.GradientLayerMat[x][this.Height - 1] = deltaArray[x];
+                        // bias
+                        this.gradientLayerMat[x][this.Height - 1] += deltaArray[x];
                     }
-                    this.GradientLayerMat[x][y] = deltaArray[x] * this.activationValueArray[y];
+                    this.gradientLayerMat[x][y] += deltaArray[x] * this.activationValueArray[y];
                 }
             }
 
@@ -82,6 +82,7 @@ namespace LicensPlateRecognition.Layer
         public override void RandInitLayerMat()
         {
             this.layerMat = new double[this.Width][];
+            this.gradientLayerMat = new double[this.Width][];
             for (int y = 0; y < this.Height; y++)
             {
                 for (int x = 0; x < this.Width; x++)
@@ -90,9 +91,29 @@ namespace LicensPlateRecognition.Layer
                     if (y == 0)
                     {
                         this.layerMat[x] = new double[this.Height];
+                        this.gradientLayerMat[x] = new double[this.Height];
                     }
 
                     this.layerMat[x][y] = this.randNumGen.CreateRandomNum();
+                }
+            }
+        }
+
+        // stochastic gradient descent weight update
+        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        {
+            for (int y = 0; y < this.Height; y++)
+            {
+                for (int x = 0; x < this.Width; x++)
+                {
+                    if (y == 0)
+                    {
+                        // bias
+                        this.layerMat[x][this.Height - 1] -= (learningRate / miniBatchSize) * this.gradientLayerMat[x][this.Height - 1];
+                        this.gradientLayerMat[x][this.Height - 1] = 0;
+                    }
+                    this.layerMat[x][y] -= (learningRate / miniBatchSize) * this.gradientLayerMat[x][y];
+                    this.gradientLayerMat[x][y] = 0;
                 }
             }
         }

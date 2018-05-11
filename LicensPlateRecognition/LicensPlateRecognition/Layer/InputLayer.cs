@@ -124,5 +124,10 @@ namespace LicensPlateRecognition.Layer
         {
             throw new NotImplementedException();
         }
+
+        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        {
+            throw new NotImplementedException();
+        }
     }
 }
