@@ -28,8 +28,8 @@ namespace LicensPlateRecognition.Layer
 
         public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
         {
+            // nothing to be done with delta matrix in input layer
             this.DeltaMatrix = deltaMatrix;
-            Console.WriteLine("Backwardpass done!");
         }
 
         public void LoadImage(Bitmap inputImg)
@@ -100,7 +100,7 @@ namespace LicensPlateRecognition.Layer
             throw new NotImplementedException();
         }
 
-        public override void PrintArray()
+        public override double[] GetOutputArray()
         {
             throw new NotImplementedException();
         }

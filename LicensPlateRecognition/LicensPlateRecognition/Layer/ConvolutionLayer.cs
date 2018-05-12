@@ -301,7 +301,7 @@ namespace LicensPlateRecognition.Layer
             throw new NotImplementedException();
         }
 
-        public override void PrintArray()
+        public override double[] GetOutputArray()
         {
             throw new NotImplementedException();
         }

@@ -39,12 +39,9 @@ namespace LicensPlateRecognition.Layer
             this.outputArray = activation.Softmax(flatArray);
         }
 
-        public override void PrintArray()
+        public override double[] GetOutputArray()
         {
-            for (int i = 0; i < this.outputArray.Length; i++)
-            {
-                Console.WriteLine(this.outputArray[i]);
-            }
+            return this.outputArray;
         }
 
         public override void RandInitFilter()

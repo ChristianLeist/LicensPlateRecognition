@@ -25,6 +25,10 @@ namespace LicensPlateRecognition.Calc
             //random normal(0,1)
             double randStdNormal = Math.Sqrt(-2.0 * Math.Log(u1)) * Math.Sin(2.0 * Math.PI * u2);
 
+            // only positiv values, to prevent excluding values due to ReLu activation
+            //if (randStdNormal < 0)
+            //    randStdNormal *= -1;
+
             //random normal(mean,stdDev^2)
             return this.mean + this.stdDev * randStdNormal;
         }

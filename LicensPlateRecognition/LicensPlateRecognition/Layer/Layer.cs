@@ -34,7 +34,7 @@ namespace LicensPlateRecognition.Layer
         public abstract void InitLayer(int height, int width);
 
         // used in output layer
-        public abstract void PrintArray();
+        public abstract double[] GetOutputArray();
 
         public abstract void FeedForward(Image img, double[] flat, double[][][] matrix);
 

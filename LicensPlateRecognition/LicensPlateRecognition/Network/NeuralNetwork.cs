@@ -26,9 +26,12 @@ namespace LicensPlateRecognition.Network
         {
             for (int e = 0; e < epochs; e++)
             {
+                Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
+                var recognition = 0;
                 // forward pass
                 for (int i = 0; i < rndKeyValuePairs.Count; i++)
                 {
+                    double[] output = new double[outClass];
                     for (int j = 0; j < this.Layers.Count; j++)
                     {
                         if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
@@ -64,18 +67,15 @@ namespace LicensPlateRecognition.Network
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                        {
                             this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                            output = this.Layers[j].GetOutputArray();
+                        }
                     }
 
                     // backward pass
                     for (int j = this.Layers.Count - 1; j >= 0; j--)
                     {
-                        if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
-                        {
-                            this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
-                            this.PrintMatrix(this.Layers[j].DeltaMatrix);
-                        }
-
                         if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
                             this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
 
@@ -109,10 +109,14 @@ namespace LicensPlateRecognition.Network
                                     this.Layers[j].StoreWeights();
                             }
                         }
+                        Console.WriteLine("\t" + "Weights updated after {0} inputs", i + 1);
                     }
 
+                    // recognition rate computation
+                    recognition += RecognitionRate(output, rndKeyValuePairs.ElementAt(i).Value);
                 }
-                // TODO: nach jeder epoche lernvortschritt printen
+
+                Console.WriteLine("Recognition rate in epoch {0}: {1}" , e + 1, recognition / rndKeyValuePairs.Count);
             }
         }
 
@@ -206,6 +210,19 @@ namespace LicensPlateRecognition.Network
                     Console.WriteLine();
                 }
             }
+        }
+
+        public int RecognitionRate(double[] output, double[] desiredOutput)
+        {
+            for (int j = 0; j < output.Length; j++)
+            {
+                if (desiredOutput[j] == 1 && output[j] > 0.5)
+                {
+                    return 1;
+                }
+            }
+
+            return 0;
         }
     }
 }
