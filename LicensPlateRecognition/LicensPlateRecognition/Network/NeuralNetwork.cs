@@ -28,6 +28,7 @@ namespace LicensPlateRecognition.Network
             {
                 Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
                 var recognition = 0;
+                var recRate = 0.0;
                 // forward pass
                 for (int i = 0; i < rndKeyValuePairs.Count; i++)
                 {
@@ -103,7 +104,7 @@ namespace LicensPlateRecognition.Network
                             if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
                                 this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
                             {
-                                this.Layers[j].UpdateWeights(this.LearningRate, miniBatchSize);
+                                this.Layers[j].UpdateWeights(miniBatchSize);
                                 // store weights in last epoch and last training input
                                 if (e == epochs - 1 && i == rndKeyValuePairs.Count - 1)
                                     this.Layers[j].StoreWeights();
@@ -116,7 +117,8 @@ namespace LicensPlateRecognition.Network
                     recognition += RecognitionRate(output, rndKeyValuePairs.ElementAt(i).Value);
                 }
 
-                Console.WriteLine("Recognition rate in epoch {0}: {1}" , e + 1, recognition / rndKeyValuePairs.Count);
+                recRate = (double)recognition / (double)rndKeyValuePairs.Count;
+                Console.WriteLine("Recognition rate in epoch {0}: {1}" , e + 1, recRate);
             }
         }
 

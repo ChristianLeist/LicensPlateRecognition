@@ -60,9 +60,9 @@ namespace LicensPlateRecognition.Layer
                     if (y == 0)
                     {
                         // bias
-                        this.gradientLayerMat[x][this.Height - 1] += deltaArray[x];
+                        this.gradientLayerMat[x][this.Height - 1] += this.learningRate * deltaArray[x];
                     }
-                    this.gradientLayerMat[x][y] += deltaArray[x] * this.activationValueArray[y];
+                    this.gradientLayerMat[x][y] += this.learningRate * deltaArray[x] * this.activationValueArray[y];
                 }
             }
 
@@ -100,7 +100,7 @@ namespace LicensPlateRecognition.Layer
         }
 
         // stochastic gradient descent weight update
-        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        public override void UpdateWeights(int miniBatchSize)
         {
             for (int y = 0; y < this.Height; y++)
             {
@@ -109,10 +109,10 @@ namespace LicensPlateRecognition.Layer
                     if (y == 0)
                     {
                         // bias
-                        this.layerMat[x][this.Height - 1] -= (learningRate / miniBatchSize) * this.gradientLayerMat[x][this.Height - 1];
+                        this.layerMat[x][this.Height - 1] -= (1.0 / (double)miniBatchSize) * this.gradientLayerMat[x][this.Height - 1];
                         this.gradientLayerMat[x][this.Height - 1] = 0;
                     }
-                    this.layerMat[x][y] -= (learningRate / miniBatchSize) * this.gradientLayerMat[x][y];
+                    this.layerMat[x][y] -= (1.0 / (double)miniBatchSize) * this.gradientLayerMat[x][y];
                     this.gradientLayerMat[x][y] = 0;
                 }
             }

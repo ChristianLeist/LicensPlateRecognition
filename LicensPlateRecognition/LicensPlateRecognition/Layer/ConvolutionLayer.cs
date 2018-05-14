@@ -80,9 +80,9 @@ namespace LicensPlateRecognition.Layer
                                 for (int w = 0; w < f; w++)
                                 {
                                     // compute filter weight gradients and bias gradients for layer
-                                    this.Filters[z].FilterGradientMat[w][h][d] += deltaMatrix[x][y][z] *
+                                    this.Filters[z].FilterGradientMat[w][h][d] += this.learningRate * deltaMatrix[x][y][z] *
                                     this.activationValueMatrix[this.stride * x + w][this.stride * y + h][d];
-                                    this.Filters[z].BiasGradient += deltaMatrix[x][y][z];
+                                    this.Filters[z].BiasGradient += this.learningRate * deltaMatrix[x][y][z];
 
                                     // compute delta gradients for layer - 1
                                     this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z] *
@@ -251,11 +251,11 @@ namespace LicensPlateRecognition.Layer
         }
 
         // stochastic gradient descent weight update
-        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        public override void UpdateWeights(int miniBatchSize)
         {
             foreach (Filter filter in this.Filters)
             {
-                filter.Bias -= (learningRate / miniBatchSize) * filter.BiasGradient;
+                filter.Bias -= (1.0 / (double)miniBatchSize) * filter.BiasGradient;
                 filter.BiasGradient = 0;
                 for (int z = 0; z < filter.Depth; z++)
                 {
@@ -263,7 +263,7 @@ namespace LicensPlateRecognition.Layer
                     {
                         for (int x = 0; x < filter.Width; x++)
                         {
-                            filter.FilterMat[x][y][z] -= (learningRate / miniBatchSize) * filter.FilterGradientMat[x][y][z];
+                            filter.FilterMat[x][y][z] -= (1.0 / (double)miniBatchSize) * filter.FilterGradientMat[x][y][z];
                             filter.FilterGradientMat[x][y][z] = 0;
                         }
                     }

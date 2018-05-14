@@ -69,7 +69,7 @@ namespace LicensPlateRecognition.Layer
             throw new NotImplementedException();
         }
 
-        public override void UpdateWeights(double learningRate, int miniBatchSize)
+        public override void UpdateWeights(int miniBatchSize)
         {
             throw new NotImplementedException();
         }

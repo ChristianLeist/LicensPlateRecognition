@@ -9,28 +9,30 @@ namespace LicensPlateRecognition.Calc
         public double[] Softmax(double[] classArray)
         {
             int length = classArray.Length;
-            double[] ar = new double[length];
+            double[] ar1 = new double[length];
+            double[] ar2 = new double[length];
             double denom = 0;
 
-            classArray.CopyTo(ar, 0);
-            Array.Sort(ar);
+            classArray.CopyTo(ar1, 0);
+            classArray.CopyTo(ar2, 0);
+            Array.Sort(ar2);
 
             for (int i = 0; i < length; i++)
             {
-                ar[i] -= ar[length - 1];
+                ar1[i] -= ar2[length - 1];
             }
 
             for (int i = 0; i < length; i++)
             {
-                denom += Math.Pow(Math.E, ar[i]);
+                denom += Math.Pow(Math.E, ar1[i]);
             }
 
             for (int i = 0; i < length; i++)
             {
-                ar[i] = Math.Pow(Math.E, ar[i]) / denom;
+                ar1[i] = Math.Pow(Math.E, ar1[i]) / denom;
             }
 
-            return ar;
+            return ar1;
         }
 
         // derivative

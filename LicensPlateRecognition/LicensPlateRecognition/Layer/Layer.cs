@@ -15,6 +15,7 @@ namespace LicensPlateRecognition.Layer
         public int Width { get; protected set; }
         public int Height { get; protected set; }
         public int Depth { get; protected set; }
+        public double learningRate;
 
         protected Layer(NeuralNetwork neuralNetwork)
         {
@@ -22,6 +23,7 @@ namespace LicensPlateRecognition.Layer
             neuralNetwork.Layers.Add(this);
             LayerCount++;
             this.LayerNum = LayerCount;
+            this.learningRate = neuralNetwork.LearningRate;
         }
 
         // used in conv layer
@@ -47,7 +49,7 @@ namespace LicensPlateRecognition.Layer
         public abstract void LoadWeights();
 
         // used in conv and fc layer
-        public abstract void UpdateWeights(double learningRate, int miniBatchSize);
+        public abstract void UpdateWeights(int miniBatchSize);
 
         // used before fc layer
         public void Flattening()
