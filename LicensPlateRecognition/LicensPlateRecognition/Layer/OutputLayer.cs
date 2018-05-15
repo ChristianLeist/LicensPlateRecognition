@@ -20,14 +20,14 @@ namespace LicensPlateRecognition.Layer
             ComputeOutput(flat);
         }
 
-        public override void BackwardPass(double[] setValueArray, double[][][] deltaMatrix)
+        public override void BackwardPass(double[] targetValueArray, double[][][] deltaMatrix)
         {
             this.DeltaArray = new double[this.outputArray.Length];
-            double[] DSoftmaxArray = activation.DSoftmax(this.FlatArray);
+            //double[] DSoftmaxArray = activation.DSoftmax(this.FlatArray);
             for (int i = 0; i < this.outputArray.Length; i++)
             {
                 // delta error * derivative z
-                this.DeltaArray[i] = activation.DLossFunction(this.outputArray[i], setValueArray[i]) * DSoftmaxArray[i];
+                this.DeltaArray[i] = activation.DCrossEntropyLoss(this.outputArray[i], targetValueArray[i]);
             }
         }
 

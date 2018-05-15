@@ -118,13 +118,80 @@ namespace LicensPlateRecognition.Network
                 }
 
                 recRate = (double)recognition / (double)rndKeyValuePairs.Count;
-                Console.WriteLine("Recognition rate in epoch {0}: {1}" , e + 1, recRate);
+                Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
+
+                if (recRate == 1)
+                {
+                    for (int j = 0; j < this.Layers.Count; j++)
+                    {
+                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
+                            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
+                            // store weights
+                            this.Layers[j].StoreWeights();
+                        }
+                    }
+                    Console.WriteLine("Learning stopped in epoch {0} of {1}, cause of max recognition", e + 1, epochs);
+                    break;
+                }
             }
         }
 
-        public void Testing()
+        public void Testing(int outClass, Dictionary<string, double[]> keyValuePairs)
         {
-            // TODO: Testbetrieb
+            Console.WriteLine("Starting Test...");
+
+            var recognition = 0;
+            var recRate = 0.0;
+
+            for (int i = 0; i < keyValuePairs.Count; i++)
+            {
+                Console.WriteLine("\t Processing testdata {0} of {1}", i + 1, keyValuePairs.Count);
+
+                double[] output = new double[outClass];
+                for (int j = 0; j < this.Layers.Count; j++)
+                {
+                    if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
+                        this.Layers[j].FeedForward(new Bitmap(keyValuePairs.ElementAt(i).Key), null, null);
+
+                    if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                    {
+                        this.Layers[j].LoadWeights();
+                        this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+                    }
+
+                    if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                    {
+                        this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+
+                        if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                            this.Layers[j].Flattening();
+                    }
+
+                    if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                    {
+                        this.Layers[j].LoadWeights();
+
+                        if (this.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
+                            this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, outClass);
+                        else
+                            this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, this.Layers[j - 1].FlatArray.Length);
+
+                        this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                    }
+
+                    if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                    {
+                        this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                        output = this.Layers[j].GetOutputArray();
+                    }
+                }
+                // recognition rate computation
+                recognition += RecognitionRate(output, keyValuePairs.ElementAt(i).Value);
+            }
+
+            recRate = (double)recognition / (double)keyValuePairs.Count;
+            Console.WriteLine("Recognition rate in testdata: {0}", recRate);
         }
 
         public void ForwardPass(int outClass, string input)
@@ -192,7 +259,7 @@ namespace LicensPlateRecognition.Network
                     for (int i = 0; i < binaryString.Length; i++)
                     {
                         var charArray = binaryString.ToCharArray();
-                        binaryInt[i] = (int) Char.GetNumericValue(charArray[binaryString.Length - 1 - i]);
+                        binaryInt[i] = (int)Char.GetNumericValue(charArray[binaryString.Length - 1 - i]);
                     }
                     keyValuePairs.Add(csv.GetField(0), binaryInt);
                 }

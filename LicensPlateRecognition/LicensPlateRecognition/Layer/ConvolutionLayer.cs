@@ -275,7 +275,7 @@ namespace LicensPlateRecognition.Layer
         {
             XmlSerializer writer = new XmlSerializer(typeof(List<Filter>));
 
-            using (FileStream file = File.OpenWrite(this.ToString() + this.LayerNum.ToString() + ".xml"))
+            using (FileStream file = File.Create(this.ToString() + this.LayerNum.ToString() + ".xml"))
             {
                 writer.Serialize(file, this.Filters);
             }

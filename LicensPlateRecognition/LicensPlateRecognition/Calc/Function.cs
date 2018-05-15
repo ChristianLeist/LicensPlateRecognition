@@ -1,6 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LicensPlateRecognition.Calc
 {
@@ -36,27 +34,34 @@ namespace LicensPlateRecognition.Calc
         }
 
         // derivative
-        public double[] DSoftmax(double[] inArray)
-        {
-            inArray = Softmax(inArray);
-            double[] outArray = new double[inArray.Length];
-            for (int i = 0; i < inArray.Length; i++)
-            {
-                for (int j = 0; j < 1; j++)
-                {
-                    if (i == j)
-                    {
-                        outArray[i] = inArray[i] * (1 - inArray[i]);
-                    }
-                    else
-                    {
-                        outArray[i] = inArray[i] * -inArray[i];
-                    }
-                }
-            }
+        //public double[] DSoftmax(double[] inArray)
+        //{
+        //    double[] sArray1 = Softmax(inArray);
+        //    // e^x component wise
+        //    for (int i = 0; i < inArray.Length; i++)
+        //    {
+        //        inArray[i] = Math.Exp(inArray[i]);
+        //    }
+        //    double[] sArray2 = Softmax(inArray);
 
-            return outArray;
-        }
+        //    double[] outArray = new double[inArray.Length];
+        //    for (int i = 0; i < inArray.Length; i++)
+        //    {
+        //        for (int j = 0; j < 1; j++)
+        //        {
+        //            if (i == j)
+        //            {
+        //                outArray[i] = sArray1[i] * (1 - sArray1[i]);
+        //            }
+        //            else
+        //            {
+        //                outArray[i] = sArray2[i] * -sArray2[j];
+        //            }
+        //        }
+        //    }
+
+        //    return outArray;
+        //}
 
         public double ReLU(double inVal)
         {
@@ -69,30 +74,36 @@ namespace LicensPlateRecognition.Calc
             return inVal < 0 ? 0 : 1;
         }
 
-        public double Sigmoid(double inVal)
-        {
-            return 1 / (1 + Math.Pow(Math.E, -inVal));
-        }
+        //public double Sigmoid(double inVal)
+        //{
+        //    return 1 / (1 + Math.Pow(Math.E, -inVal));
+        //}
 
-        // derivative
-        public double Dsigmoid(double inVal)
-        {
-            double d = Sigmoid(inVal);
-            return (1 - d) * d;
-        }
+        //// derivative
+        //public double Dsigmoid(double inVal)
+        //{
+        //    double d = Sigmoid(inVal);
+        //    return (1 - d) * d;
+        //}
 
-        public double LossFunction(double[] classArray, double[] targetValue, int miniBatchSize)
-        {
-            double outVal = 0;
-            for (int i = 0; i < classArray.Length; i++)
-            {
-                outVal += Math.Pow((targetValue[i] - classArray[i]), 2);
-            }
-            return (1 / (2 * miniBatchSize)) * outVal;
-        }
+        //public double MseLoss(double[] classArray, double[] targetValue, int miniBatchSize)
+        //{
+        //    double outVal = 0;
+        //    for (int i = 0; i < classArray.Length; i++)
+        //    {
+        //        outVal += Math.Pow((targetValue[i] - classArray[i]), 2);
+        //    }
+        //    return (1 / (2 * miniBatchSize)) * outVal;
+        //}
 
-        // derivative
-        public double DLossFunction(double setValue, double targetValue)
+        //// derivative
+        //public double DMseLoss(double setValue, double targetValue)
+        //{
+        //    return setValue - targetValue;
+        //}
+
+        // derivative of cross entropy loss computed with softmax activation
+        public double DCrossEntropyLoss(double setValue, double targetValue)
         {
             return setValue - targetValue;
         }
