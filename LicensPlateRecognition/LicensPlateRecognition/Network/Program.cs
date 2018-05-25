@@ -13,7 +13,6 @@ namespace LicensPlateRecognition.Network
         public static void Main(string[] args)
         {
             NeuralNetwork network = new NeuralNetwork(ExecMode.Testing, 1 * Math.Pow(10, -10));
-            Random rnd = new Random();
             string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*");
@@ -45,20 +44,11 @@ namespace LicensPlateRecognition.Network
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
-                // shuffle training input
-                var list = keyValuePairs.Keys.ToList();
-                var rndList = list.OrderBy(x => rnd.Next());
-                Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
                 var epochs = 1000;
                 // must be divisible through number of training data
                 var miniBatchSize = 5;
 
-                foreach (var key in rndList)
-                {
-                    rndKeyValuePairs.Add(key, keyValuePairs[key]);
-                }
-
-                network.Learning(rndKeyValuePairs, outClass, epochs, miniBatchSize);
+                network.Learning(keyValuePairs, outClass, epochs, miniBatchSize);
             }
 
             if (network.ExecMode == ExecMode.Testing)

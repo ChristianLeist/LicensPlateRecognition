@@ -14,21 +14,35 @@ namespace LicensPlateRecognition.Network
         public List<Layer.Layer> Layers { get; }
         public ExecMode ExecMode { get; }
         public double LearningRate { get; }
+        Random rnd;
+
 
         public NeuralNetwork(ExecMode execMode, double learningRate)
         {
             this.Layers = new List<Layer.Layer>();
             this.ExecMode = execMode;
             this.LearningRate = learningRate;
+            rnd = new Random();
         }
 
-        public void Learning(Dictionary<string, double[]> rndKeyValuePairs, int outClass, int epochs, int miniBatchSize)
+        public void Learning(Dictionary<string, double[]> keyValuePairs, int outClass, int epochs, int miniBatchSize)
         {
             for (int e = 0; e < epochs; e++)
             {
                 Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
                 var recognition = 0;
                 var recRate = 0.0;
+
+                // shuffle training input
+                var list = keyValuePairs.Keys.ToList();
+                var rndList = list.OrderBy(x => rnd.Next());
+                Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
+
+                foreach (var key in rndList)
+                {
+                    rndKeyValuePairs.Add(key, keyValuePairs[key]);
+                }
+
                 // forward pass
                 for (int i = 0; i < rndKeyValuePairs.Count; i++)
                 {
