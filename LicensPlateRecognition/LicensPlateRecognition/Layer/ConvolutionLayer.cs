@@ -85,10 +85,10 @@ namespace LicensPlateRecognition.Layer
                                     this.Filters[z].BiasGradient += this.learningRate * deltaMatrix[x][y][z];
 
                                     // compute delta gradients for layer - 1
-                                    this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z] *
-                                    activation.DReLU(this.zValueMatrix[this.stride * x][this.stride * y][d]);
+                                    this.DeltaMatrix[x * this.stride][y * this.stride][d] += this.Filters[z].FilterMat[w][h][d] * deltaMatrix[x][y][z];
                                 }
                             }
+                            this.DeltaMatrix[x * this.stride][y * this.stride][d] *= activation.DReLU(this.zValueMatrix[this.stride * x][this.stride * y][d]);
                         }
                     }
                 }

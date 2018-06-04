@@ -12,7 +12,7 @@ namespace LicensPlateRecognition.Network
     {
         public static void Main(string[] args)
         {
-            NeuralNetwork network = new NeuralNetwork(ExecMode.Testing, 1 * Math.Pow(10, -10));
+            NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 1 * Math.Pow(10, -10));
             string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*");
@@ -40,7 +40,7 @@ namespace LicensPlateRecognition.Network
             {
                 // just needed once to create a csv with tuple of image and class value
                 // uncomment if you want to create the traning data
-                //network.CreateCSV(imageFilePath, trainingData, "training.csv");
+                network.CreateCSV(imageFilePath, trainingData, "training.csv");
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
@@ -49,17 +49,23 @@ namespace LicensPlateRecognition.Network
                 var miniBatchSize = 5;
 
                 network.Learning(keyValuePairs, outClass, epochs, miniBatchSize);
+
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
             }
 
             if (network.ExecMode == ExecMode.Testing)
             {
                 // just needed once to create a csv with tuple of image and class value
                 // uncomment if you want to create the traning data
-                //network.CreateCSV(imageFilePath, testData, "testing.csv");
+                network.CreateCSV(imageFilePath, testData, "testing.csv");
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "testing.csv", outClass);
 
                 network.Testing(outClass, keyValuePairs);
+
+                Console.WriteLine("Press any key to continue...");
+                Console.ReadKey();
             }
 
             if (network.ExecMode == ExecMode.Normal)
@@ -69,9 +75,6 @@ namespace LicensPlateRecognition.Network
 
                 network.ForwardPass(outClass, keyValuePairs.ElementAt(0).Key);
             }
-
-            Console.WriteLine("Press any key to continue...");
-            Console.ReadKey();
         }
     }
 }

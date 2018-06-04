@@ -72,10 +72,12 @@ namespace LicensPlateRecognition.Layer
             {
                 for (int x = 0; x < this.Width; x++)
                 {
-                    // delta = w * delta * derivative z
+                    // delta = w * delta
                     // gradients add at branches
-                    this.DeltaArray[y] += this.layerMat[x][y] * deltaArray[x] * activation.DReLU(this.zValueArray[y]);
+                    this.DeltaArray[y] += this.layerMat[x][y] * deltaArray[x];
                 }
+                // * derivative z
+                this.DeltaArray[y] *= activation.DReLU(this.zValueArray[y]);
             }
         }
 

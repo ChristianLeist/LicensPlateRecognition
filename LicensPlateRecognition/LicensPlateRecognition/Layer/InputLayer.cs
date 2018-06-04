@@ -9,15 +9,15 @@ namespace LicensPlateRecognition.Layer
 {
     public class InputLayer : Layer
     {
-        private int inRangeMin, inRangeMax;
+        //private int inRangeMin, inRangeMax;
 
         public InputLayer(int width, int height, int depth, NeuralNetwork network) : base(network)
         {
             this.Width = width;
             this.Height = height;
             this.Depth = depth;
-            this.inRangeMax = 255;
-            this.inRangeMin = 0;
+            //this.inRangeMax = 255;
+            //this.inRangeMin = 0;
             this.ImgMatrix = new double[width][][];
         }
 
@@ -63,8 +63,9 @@ namespace LicensPlateRecognition.Layer
 
                         // fill imgMatrix
                         int inputImgPixel = y * inputImageData.Stride + x * 4;
-                        this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] - this.inRangeMin /
-                                                                    (this.inRangeMax - this.inRangeMin); // normalization
+                        this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z];
+                        //this.ImgMatrix[x][y][z] = inputImageArray[inputImgPixel + z] /
+                        //                          (this.inRangeMax - this.inRangeMin); // normalization
                     }
                 }
             }

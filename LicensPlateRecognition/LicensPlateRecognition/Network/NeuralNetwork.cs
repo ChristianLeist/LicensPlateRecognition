@@ -134,20 +134,20 @@ namespace LicensPlateRecognition.Network
                 recRate = (double)recognition / (double)rndKeyValuePairs.Count;
                 Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
 
-                if (recRate == 1)
-                {
-                    for (int j = 0; j < this.Layers.Count; j++)
-                    {
-                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
-                            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                        {
-                            // store weights
-                            this.Layers[j].StoreWeights();
-                        }
-                    }
-                    Console.WriteLine("Learning stopped in epoch {0} of {1}, cause of max recognition", e + 1, epochs);
-                    break;
-                }
+                //if (recRate == 1)
+                //{
+                //    for (int j = 0; j < this.Layers.Count; j++)
+                //    {
+                //        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
+                //            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                //        {
+                //            // store weights
+                //            this.Layers[j].StoreWeights();
+                //        }
+                //    }
+                //    Console.WriteLine("Learning stopped in epoch {0} of {1}, cause of max recognition", e + 1, epochs);
+                //    break;
+                //}
             }
         }
 
