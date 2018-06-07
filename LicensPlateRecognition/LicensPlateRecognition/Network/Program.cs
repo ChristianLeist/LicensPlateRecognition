@@ -48,7 +48,7 @@ namespace LicensPlateRecognition.Network
                 // must be divisible through number of training data
                 var miniBatchSize = 5;
 
-                network.Learning(keyValuePairs, outClass, epochs, miniBatchSize);
+                network.Learning(keyValuePairs, outClass, epochs, miniBatchSize, imageFilePath);
 
                 Console.WriteLine("Press any key to continue...");
                 Console.ReadKey();
