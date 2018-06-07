@@ -27,7 +27,7 @@ namespace LicensPlateRecognition.Network
 
         public void Learning(Dictionary<string, double[]> keyValuePairs, int outClass, int epochs, int miniBatchSize, string filePath)
         {
-            using (TextWriter textWriter = new StreamWriter(filePath + "learning_report"))
+            using (TextWriter textWriter = new StreamWriter(filePath + "learning_report.csv"))
             {
                 var csv = new CsvWriter(textWriter);
 

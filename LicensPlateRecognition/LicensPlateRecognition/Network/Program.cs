@@ -13,7 +13,7 @@ namespace LicensPlateRecognition.Network
         public static void Main(string[] args)
         {
             NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 1 * Math.Pow(10, -10));
-            string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
+            string imageFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*");
             // key value pairs for training or test input and desired output
