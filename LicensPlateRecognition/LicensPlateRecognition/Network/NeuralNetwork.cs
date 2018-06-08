@@ -143,7 +143,7 @@ namespace LicensPlateRecognition.Network
                     recRate = (double)recognition / (double)rndKeyValuePairs.Count;
                     Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
 
-                    //if (recRate == 1)
+                    //if (true)
                     //{
                     //    for (int j = 0; j < this.Layers.Count; j++)
                     //    {
@@ -154,7 +154,7 @@ namespace LicensPlateRecognition.Network
                     //            this.Layers[j].StoreWeights();
                     //        }
                     //    }
-                    //    Console.WriteLine("Learning stopped in epoch {0} of {1}, cause of max recognition", e + 1, epochs);
+                    //    Console.WriteLine("Learning stopped in epoch {0} of {1}", e + 1, epochs);
                     //    break;
                     //}
                 }

@@ -44,7 +44,7 @@ namespace LicensPlateRecognition.Network
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
-                var epochs = 1000;
+                var epochs = 100;
                 // must be divisible through number of training data
                 var miniBatchSize = 5;
 
