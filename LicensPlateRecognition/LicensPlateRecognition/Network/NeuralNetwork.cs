@@ -27,136 +27,131 @@ namespace LicensPlateRecognition.Network
 
         public void Learning(Dictionary<string, double[]> keyValuePairs, int outClass, int epochs, int miniBatchSize, string filePath)
         {
-            using (TextWriter textWriter = new StreamWriter(filePath + "learning_report.csv"))
+            TextWriter textWriter = new StreamWriter(filePath + "learning_report.csv");
+
+            for (int e = 0; e < epochs; e++)
             {
-                var csv = new CsvWriter(textWriter);
+                Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
+                var recognition = 0;
+                var recRate = 0.0;
 
-                for (int e = 0; e < epochs; e++)
+                // shuffle training input
+                var list = keyValuePairs.Keys.ToList();
+                var rndList = list.OrderBy(x => rnd.Next());
+                Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
+
+                foreach (var key in rndList)
                 {
-                    Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
-                    var recognition = 0;
-                    var recRate = 0.0;
+                    rndKeyValuePairs.Add(key, keyValuePairs[key]);
+                }
 
-                    // shuffle training input
-                    var list = keyValuePairs.Keys.ToList();
-                    var rndList = list.OrderBy(x => rnd.Next());
-                    Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
-
-                    foreach (var key in rndList)
+                // training data
+                for (int i = 0; i < rndKeyValuePairs.Count; i++)
+                {
+                    double[] output = new double[outClass];
+                    // forward pass
+                    for (int j = 0; j < this.Layers.Count; j++)
                     {
-                        rndKeyValuePairs.Add(key, keyValuePairs[key]);
+                        if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
+                            this.Layers[j].FeedForward(new Bitmap(rndKeyValuePairs.ElementAt(i).Key), null, null);
+
+                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                        {
+                            if (e == 0 && i == 0)
+                                this.Layers[j].RandInitFilter();
+
+                            this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+                        }
+
+                        if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                        {
+                            this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+
+                            if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                                this.Layers[j].Flattening();
+                        }
+
+                        if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
+                            if (this.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
+                                this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, outClass);
+                            else
+                                this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, this.Layers[j - 1].FlatArray.Length);
+
+                            if (e == 0 && i == 0)
+                                this.Layers[j].RandInitLayerMat();
+
+                            this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                        }
+
+                        if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                        {
+                            this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                            output = this.Layers[j].GetOutputArray();
+                        }
                     }
 
-                    // training data
-                    for (int i = 0; i < rndKeyValuePairs.Count; i++)
+                    // backward pass
+                    for (int j = this.Layers.Count - 1; j >= 0; j--)
                     {
-                        double[] output = new double[outClass];
-                        // forward pass
+                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                            this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
+
+                        if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
+                        {
+                            if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
+                                this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
+                            else
+                                this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
+                        }
+
+                        if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                            this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
+
+                        if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                            this.Layers[j].BackwardPass(rndKeyValuePairs.ElementAt(i).Value, null);
+                    }
+
+                    // update for every mini Batch
+                    if (i % miniBatchSize == miniBatchSize - 1)
+                    {
+                        // update forward pass
                         for (int j = 0; j < this.Layers.Count; j++)
                         {
-                            if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
-                                this.Layers[j].FeedForward(new Bitmap(rndKeyValuePairs.ElementAt(i).Key), null, null);
-
-                            if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                            if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
+                                this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
                             {
-                                if (e == 0 && i == 0)
-                                    this.Layers[j].RandInitFilter();
-
-                                this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
-                            }
-
-                            if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
-                            {
-                                this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
-
-                                if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
-                                    this.Layers[j].Flattening();
-                            }
-
-                            if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                            {
-                                if (this.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
-                                    this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, outClass);
-                                else
-                                    this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, this.Layers[j - 1].FlatArray.Length);
-
-                                if (e == 0 && i == 0)
-                                    this.Layers[j].RandInitLayerMat();
-
-                                this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
-                            }
-
-                            if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
-                            {
-                                this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
-                                output = this.Layers[j].GetOutputArray();
+                                this.Layers[j].UpdateWeights(miniBatchSize);
                             }
                         }
-
-                        // backward pass
-                        for (int j = this.Layers.Count - 1; j >= 0; j--)
-                        {
-                            if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
-                                this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
-
-                            if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
-                            {
-                                if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
-                                    this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
-                                else
-                                    this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
-                            }
-
-                            if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                                this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
-
-                            if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
-                                this.Layers[j].BackwardPass(rndKeyValuePairs.ElementAt(i).Value, null);
-                        }
-
-                        // update for every mini Batch
-                        if (i % miniBatchSize == miniBatchSize - 1)
-                        {
-                            // update forward pass
-                            for (int j = 0; j < this.Layers.Count; j++)
-                            {
-                                if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
-                                    this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                                {
-                                    this.Layers[j].UpdateWeights(miniBatchSize);
-                                    // store weights in last epoch and last training input
-                                    if (e == epochs - 1 && i == rndKeyValuePairs.Count - 1)
-                                        this.Layers[j].StoreWeights();
-                                }
-                            }
-                            Console.WriteLine("\t" + "Weights updated after {0} inputs", i + 1);
-                        }
-
-                        // recognition rate computation
-                        recognition += RecognitionRate(output, rndKeyValuePairs.ElementAt(i).Value);
+                        Console.WriteLine("\t" + "Weights updated after {0} inputs", i + 1);
                     }
 
-                    // save recognition rate to csv after each epoch
-                    csv.WriteField(recognition);
-                    csv.NextRecord();
+                    // recognition rate computation
+                    recognition += RecognitionRate(output, rndKeyValuePairs.ElementAt(i).Value);
+                }
 
-                    recRate = (double)recognition / (double)rndKeyValuePairs.Count;
-                    Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
+                recRate = (double)recognition / (double)rndKeyValuePairs.Count;
+                Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
 
-                    //if (true)
-                    //{
-                    //    for (int j = 0; j < this.Layers.Count; j++)
-                    //    {
-                    //        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
-                    //            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                    //        {
-                    //            // store weights
-                    //            this.Layers[j].StoreWeights();
-                    //        }
-                    //    }
-                    //    Console.WriteLine("Learning stopped in epoch {0} of {1}", e + 1, epochs);
-                    //    break;
-                    //}
+                // save recognition rate to csv after each epoch
+                textWriter.WriteLine(recRate);
+                textWriter.Flush();
+
+                // store weights every 5 epochs
+                if (e % 5 == 4)
+                {
+                    for (int j = 0; j < this.Layers.Count; j++)
+                    {
+                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
+                            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
+                            // store weights
+                            this.Layers[j].StoreWeights();
+                        }
+                    }
+                    //Console.WriteLine("Learning stopped in epoch {0} of {1}", e + 1, epochs);
+                    //break;
                 }
             }
         }

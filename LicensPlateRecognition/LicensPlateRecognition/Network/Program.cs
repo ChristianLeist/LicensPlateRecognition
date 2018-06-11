@@ -12,24 +12,21 @@ namespace LicensPlateRecognition.Network
     {
         public static void Main(string[] args)
         {
-            NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 1 * Math.Pow(10, -10));
-            string imageFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
+            NeuralNetwork network = new NeuralNetwork(ExecMode.Learning, 1 * Math.Pow(10, -9));
+            string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*");
             // key value pairs for training or test input and desired output
             Dictionary<string, double[]> keyValuePairs = new Dictionary<string, double[]>();
 
             // Declare network layers: declare in order of traversion! Since it will be the order of the layers list in network class
-            InputLayer inputLayer = new InputLayer(256, 256, 3, network);
-            ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, inputLayer.Depth), 4, 2, network);
-            ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(5, 5, convLayer1.Filters.Count), 4, 1, network);
+            InputLayer inputLayer = new InputLayer(128, 128, 3, network);
+            ConvolutionLayer convLayer1 = new ConvolutionLayer(new Filter(5, 5, inputLayer.Depth), 6, 2, network);
+            ConvolutionLayer convLayer2 = new ConvolutionLayer(new Filter(3, 3, convLayer1.Filters.Count), 6, 1, network);
             PoolingLayer pooling1 = new PoolingLayer(network);
-            ConvolutionLayer convLayer3 = new ConvolutionLayer(new Filter(3, 3, convLayer2.Filters.Count), 8, 2, network);
-            ConvolutionLayer convLayer4 = new ConvolutionLayer(new Filter(3, 3, convLayer3.Filters.Count), 8, 1, network);
+            ConvolutionLayer convLayer3 = new ConvolutionLayer(new Filter(3, 3, convLayer2.Filters.Count), 12, 2, network);
+            ConvolutionLayer convLayer4 = new ConvolutionLayer(new Filter(3, 3, convLayer3.Filters.Count), 12, 1, network);
             PoolingLayer pooling2 = new PoolingLayer(network);
-            //ConvolutionLayer convLayer5 = new ConvolutionLayer(new Filter(3, 3, convLayer4.Filters.Count), 12, 1, network);
-            //ConvolutionLayer convLayer6 = new ConvolutionLayer(new Filter(3, 3, convLayer5.Filters.Count), 12, 1, network);
-            //PoolingLayer pooling3 = new PoolingLayer(network);
             FullyConnectedLayer fullyConnectedLayer1 = new FullyConnectedLayer(network);
             FullyConnectedLayer fullyConnectedLayer2 = new FullyConnectedLayer(network);
             OutputLayer outputLayer = new OutputLayer(network);
@@ -44,7 +41,7 @@ namespace LicensPlateRecognition.Network
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
-                var epochs = 100;
+                var epochs = 1000;
                 // must be divisible through number of training data
                 var miniBatchSize = 5;
 
