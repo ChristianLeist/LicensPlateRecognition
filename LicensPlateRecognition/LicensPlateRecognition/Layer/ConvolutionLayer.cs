@@ -15,7 +15,7 @@ namespace LicensPlateRecognition.Layer
         private int stride;
         private double[][][] zValueMatrix;
         private double[][][] activationValueMatrix;
-        private Function activation;
+
 
         private ConvolutionLayer(NeuralNetwork network) : base(network) { } // standard constructor
 
@@ -27,7 +27,6 @@ namespace LicensPlateRecognition.Layer
                 this.Filters.Add(new Filter(filter.Width, filter.Height, filter.Depth));
             }
             this.stride = stride;
-            activation = new Function();
         }
 
         public override void FeedForward(Image img, double[] flat, double[][][] matrix)
@@ -220,7 +219,6 @@ namespace LicensPlateRecognition.Layer
 
         public override void RandInitFilter()
         {
-            RandomGaussNumberGen randNumGen = new RandomGaussNumberGen(0, 1);
             foreach (Filter filter in this.Filters)
             {
                 filter.Bias = randNumGen.CreateRandomNum();

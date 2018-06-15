@@ -1,16 +1,14 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Text;
 
 namespace LicensPlateRecognition.Calc
 {
-    public class RandomGaussNumberGen
+    public class RandomNumberGen
     {
         private Random rand;
         private int mean;
         private int stdDev;
 
-        public RandomGaussNumberGen(int mean, int stdDev)
+        public RandomNumberGen(int mean, int stdDev)
         {
             this.rand = new Random();
             this.mean = mean;

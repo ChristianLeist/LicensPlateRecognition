@@ -16,7 +16,6 @@ namespace LicensPlateRecognition.Network
         public double LearningRate { get; }
         Random rnd;
 
-
         public NeuralNetwork(ExecMode execMode, double learningRate)
         {
             this.Layers = new List<Layer.Layer>();
@@ -138,20 +137,21 @@ namespace LicensPlateRecognition.Network
                 textWriter.WriteLine(recRate);
                 textWriter.Flush();
 
-                // store weights every 5 epochs
-                if (e % 5 == 4)
+                // store weights
+                for (int j = 0; j < this.Layers.Count; j++)
                 {
-                    for (int j = 0; j < this.Layers.Count; j++)
+                    if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
+                        this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
                     {
-                        if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)) ||
-                            this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                        {
-                            // store weights
-                            this.Layers[j].StoreWeights();
-                        }
+                        // store weights
+                        this.Layers[j].StoreWeights();
                     }
-                    //Console.WriteLine("Learning stopped in epoch {0} of {1}", e + 1, epochs);
-                    //break;
+                }
+
+                if (recRate == 1)
+                {
+                    Console.WriteLine("Learning stopped in epoch {0} of {1}", e + 1, epochs);
+                    break;
                 }
             }
         }
@@ -207,6 +207,11 @@ namespace LicensPlateRecognition.Network
                 }
                 // recognition rate computation
                 recognition += RecognitionRate(output, keyValuePairs.ElementAt(i).Value);
+
+                if (RecognitionRate(output, keyValuePairs.ElementAt(i).Value) == 0)
+                {
+                    Console.WriteLine("\t\t Testdata {0} wrong classified", keyValuePairs.ElementAt(i).Key);
+                }
             }
 
             recRate = (double)recognition / (double)keyValuePairs.Count;

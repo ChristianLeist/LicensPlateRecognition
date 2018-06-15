@@ -13,14 +13,8 @@ namespace LicensPlateRecognition.Layer
         private double[][] gradientLayerMat;
         private double[] activationValueArray;
         private double[] zValueArray;
-        private RandomGaussNumberGen randNumGen;
-        private Function activation;
 
-        public FullyConnectedLayer(NeuralNetwork network) : base(network)
-        {
-            this.randNumGen = new RandomGaussNumberGen(0, 1);
-            activation = new Function();
-        }
+        public FullyConnectedLayer(NeuralNetwork network) : base(network) { }
 
         public override void InitLayer(int height, int width)
         {

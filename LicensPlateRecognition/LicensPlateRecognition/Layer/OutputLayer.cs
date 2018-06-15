@@ -7,13 +7,9 @@ namespace LicensPlateRecognition.Layer
 {
     public class OutputLayer : Layer
     {
-        private Function activation;
         private double[] outputArray;
 
-        public OutputLayer(NeuralNetwork network) : base(network)
-        {
-            activation = new Function();
-        }
+        public OutputLayer(NeuralNetwork network) : base(network) { }
 
         public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
@@ -27,7 +23,7 @@ namespace LicensPlateRecognition.Layer
             for (int i = 0; i < this.outputArray.Length; i++)
             {
                 // delta error * derivative z
-                this.DeltaArray[i] = activation.DCrossEntropyLoss(this.outputArray[i], targetValueArray[i]);
+                this.DeltaArray[i] = this.activation.DCrossEntropyLoss(this.outputArray[i], targetValueArray[i]);
             }
         }
 
@@ -36,7 +32,7 @@ namespace LicensPlateRecognition.Layer
             // unactivated values
             this.FlatArray = flatArray;
             // activated values
-            this.outputArray = activation.Softmax(flatArray);
+            this.outputArray = this.activation.Softmax(flatArray);
         }
 
         public override double[] GetOutputArray()

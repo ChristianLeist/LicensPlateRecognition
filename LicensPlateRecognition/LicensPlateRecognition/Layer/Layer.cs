@@ -1,4 +1,5 @@
-﻿using LicensPlateRecognition.Network;
+﻿using LicensPlateRecognition.Calc;
+using LicensPlateRecognition.Network;
 using System.Drawing;
 
 namespace LicensPlateRecognition.Layer
@@ -8,6 +9,8 @@ namespace LicensPlateRecognition.Layer
         public static int LayerCount { get; private set; }
         public int LayerNum { get; private set; }
         protected NeuralNetwork neuralNetwork;
+        protected Function activation;
+        protected RandomNumberGen randNumGen;
         public double[][][] ImgMatrix { get; protected set; }
         public double[][][] DeltaMatrix { get; protected set; }
         public double[] FlatArray { get; protected set; }
@@ -24,6 +27,8 @@ namespace LicensPlateRecognition.Layer
             LayerCount++;
             this.LayerNum = LayerCount;
             this.learningRate = neuralNetwork.LearningRate;
+            this.activation = new Function();
+            this.randNumGen = new RandomNumberGen(0, 1);
         }
 
         // used in conv layer
@@ -52,6 +57,7 @@ namespace LicensPlateRecognition.Layer
         public abstract void UpdateWeights(int miniBatchSize);
 
         // used before fc layer
+        // matrix to vector
         public void Flattening()
         {
             int width = this.ImgMatrix.Length;
@@ -84,6 +90,7 @@ namespace LicensPlateRecognition.Layer
         }
 
         // used after backward pass from fc layer
+        // vector to matirx
         public void DeFlattening()
         {
             int width = this.ImgMatrix.Length;
