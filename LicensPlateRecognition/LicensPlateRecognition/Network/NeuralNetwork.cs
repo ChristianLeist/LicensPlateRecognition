@@ -52,7 +52,10 @@ namespace LicensPlateRecognition.Network
                     for (int j = 0; j < this.Layers.Count; j++)
                     {
                         if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
+                        {
                             this.Layers[j].FeedForward(new Bitmap(rndKeyValuePairs.ElementAt(i).Key), null, null);
+                            continue;
+                        }
 
                         if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
                         {
@@ -60,6 +63,7 @@ namespace LicensPlateRecognition.Network
                                 this.Layers[j].RandInitFilter();
 
                             this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+                            continue;
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
@@ -68,6 +72,8 @@ namespace LicensPlateRecognition.Network
 
                             if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
                                 this.Layers[j].Flattening();
+
+                            continue;
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
@@ -81,6 +87,7 @@ namespace LicensPlateRecognition.Network
                                 this.Layers[j].RandInitLayerMat();
 
                             this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                            continue;
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
@@ -94,7 +101,10 @@ namespace LicensPlateRecognition.Network
                     for (int j = this.Layers.Count - 1; j >= 0; j--)
                     {
                         if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
+                        {
                             this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
+                            continue;
+                        }
 
                         if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
                         {
@@ -102,10 +112,15 @@ namespace LicensPlateRecognition.Network
                                 this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
                             else
                                 this.Layers[j].BackwardPass(null, this.Layers[j + 1].DeltaMatrix);
+
+                            continue;
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
+                        {
                             this.Layers[j].BackwardPass(this.Layers[j + 1].DeltaArray, null);
+                            continue;
+                        }
 
                         if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
                             this.Layers[j].BackwardPass(rndKeyValuePairs.ElementAt(i).Value, null);
@@ -167,44 +182,8 @@ namespace LicensPlateRecognition.Network
             {
                 Console.WriteLine("\t Processing testdata {0} of {1}", i + 1, keyValuePairs.Count);
 
-                double[] output = new double[outClass];
-                for (int j = 0; j < this.Layers.Count; j++)
-                {
-                    if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
-                        this.Layers[j].FeedForward(new Bitmap(keyValuePairs.ElementAt(i).Key), null, null);
-
-                    if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
-                    {
-                        this.Layers[j].LoadWeights();
-                        this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
-                    }
-
-                    if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
-                    {
-                        this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
-
-                        if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
-                            this.Layers[j].Flattening();
-                    }
-
-                    if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
-                    {
-                        this.Layers[j].LoadWeights();
-
-                        if (this.Layers[j + 1].GetType().Equals(typeof(OutputLayer)))
-                            this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, outClass);
-                        else
-                            this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, this.Layers[j - 1].FlatArray.Length);
-
-                        this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
-                    }
-
-                    if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
-                    {
-                        this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
-                        output = this.Layers[j].GetOutputArray();
-                    }
-                }
+                double[] output = this.ForwardPass(outClass, keyValuePairs.ElementAt(i).Key);
+                
                 // recognition rate computation
                 recognition += RecognitionRate(output, keyValuePairs.ElementAt(i).Value);
 
@@ -218,17 +197,22 @@ namespace LicensPlateRecognition.Network
             Console.WriteLine("Recognition rate in testdata: {0}", recRate);
         }
 
-        public void ForwardPass(int outClass, string input)
+        public double[] ForwardPass(int outClass, string input)
         {
+            double[] output = new double[outClass];
             for (int j = 0; j < this.Layers.Count; j++)
             {
                 if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
+                {
                     this.Layers[j].FeedForward(new Bitmap(input), null, null);
+                    continue;
+                }
 
                 if (this.Layers[j].GetType().Equals(typeof(ConvolutionLayer)))
                 {
                     this.Layers[j].LoadWeights();
                     this.Layers[j].FeedForward(null, null, this.Layers[j - 1].ImgMatrix);
+                    continue;
                 }
 
                 if (this.Layers[j].GetType().Equals(typeof(PoolingLayer)))
@@ -237,6 +221,8 @@ namespace LicensPlateRecognition.Network
 
                     if (this.Layers[j + 1].GetType().Equals(typeof(FullyConnectedLayer)))
                         this.Layers[j].Flattening();
+
+                    continue;
                 }
 
                 if (this.Layers[j].GetType().Equals(typeof(FullyConnectedLayer)))
@@ -249,11 +235,17 @@ namespace LicensPlateRecognition.Network
                         this.Layers[j].InitLayer(this.Layers[j - 1].FlatArray.Length, this.Layers[j - 1].FlatArray.Length);
 
                     this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                    continue;
                 }
 
                 if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
+                {
                     this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
+                    output =  this.Layers[j].GetOutputArray();
+                }
             }
+
+            return output;
         }
 
         public void CreateCSV(string filePath, string[] files, string csvName)
