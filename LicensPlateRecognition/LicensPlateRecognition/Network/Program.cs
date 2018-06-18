@@ -35,13 +35,12 @@ namespace LicensPlateRecognition.Network
 
             if (network.ExecMode == ExecMode.Learning)
             {
-                // just needed once to create a csv with tuple of image and class value
-                // uncomment if you want to create the training data
+                // create a csv with tuple of image and class value
                 network.CreateCSV(imageFilePath, trainingData, "training.csv");
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "training.csv", outClass);
 
-                var epochs = 1000;
+                var epochs = 999;
                 // must be divisible through number of training data
                 var miniBatchSize = 5;
 
@@ -53,8 +52,7 @@ namespace LicensPlateRecognition.Network
 
             if (network.ExecMode == ExecMode.Testing)
             {
-                // just needed once to create a csv with tuple of image and class value
-                // uncomment if you want to create the training data
+                // create a csv with tuple of image and class value
                 network.CreateCSV(imageFilePath, testData, "testing.csv");
 
                 network.LoadCSV(imageFilePath, keyValuePairs, "testing.csv", outClass);

@@ -30,7 +30,7 @@ namespace LicensPlateRecognition.Network
 
             for (int e = 0; e < epochs; e++)
             {
-                Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs);
+                Console.WriteLine("Processing epoch {0} of {1}", e + 1, epochs + 1);
                 var recognition = 0;
                 var recRate = 0.0;
 
@@ -176,7 +176,6 @@ namespace LicensPlateRecognition.Network
             Console.WriteLine("Starting Test...");
 
             var recognition = 0;
-            var recRate = 0.0;
 
             for (int i = 0; i < keyValuePairs.Count; i++)
             {
@@ -193,7 +192,7 @@ namespace LicensPlateRecognition.Network
                 }
             }
 
-            recRate = (double)recognition / (double)keyValuePairs.Count;
+            var recRate = (double)recognition / (double)keyValuePairs.Count;
             Console.WriteLine("Recognition rate in testdata: {0}", recRate);
         }
 
