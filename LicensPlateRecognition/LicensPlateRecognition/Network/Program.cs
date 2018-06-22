@@ -4,7 +4,6 @@ using LicensPlateRecognition.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 
 namespace LicensPlateRecognition.Network
 {
@@ -13,7 +12,7 @@ namespace LicensPlateRecognition.Network
         public static void Main(string[] args)
         {
             NeuralNetwork network = new NeuralNetwork(ExecMode.Normal, 1 * Math.Pow(10, -9));
-            string imageFilePath = @"C:\Users\Chris\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
+            string imageFilePath = @"C:\Users\cleist\source\repos\LicensPlateRecognition\LicensPlateRecognition\LicensPlateRecognition\Image\";
             string[] trainingData = Directory.GetFiles(imageFilePath + "TrainingData", "*");
             string[] testData = Directory.GetFiles(imageFilePath + "TestData", "*");
             // key value pairs for training or test input and desired output
@@ -32,6 +31,9 @@ namespace LicensPlateRecognition.Network
             OutputLayer outputLayer = new OutputLayer(network);
             // Declare Output Classes
             int outClass = 2;
+
+            MNIST mnist = new MNIST();
+            mnist.ReadMNIST();
 
             if (network.ExecMode == ExecMode.Learning)
             {
