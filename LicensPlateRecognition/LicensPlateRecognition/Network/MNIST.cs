@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 namespace LicensPlateRecognition.Network
 {
@@ -26,7 +27,13 @@ namespace LicensPlateRecognition.Network
             TestImgs = new List<DigitImage>();
         }
 
-        public void ReadMNIST()
+        public void ShuffleTrainingImgs()
+        {
+            var rnd = new Random();
+            TrainingImgs = TrainingImgs.OrderBy(x => rnd.Next()).ToList();
+        }
+
+        public void ReadTestMNIST()
         {
             try
             {
@@ -51,7 +58,60 @@ namespace LicensPlateRecognition.Network
                     pixels[i] = new byte[numCols];
 
                 // each image
-                for (int di = 0; di < numImages; ++di)
+                for (int di = 0; di < 100; ++di)
+                {
+                    for (int i = 0; i < numRows; ++i)
+                    {
+                        for (int j = 0; j < numCols; ++j)
+                        {
+                            byte b = brImages.ReadByte();
+                            pixels[i][j] = b;
+                        }
+                    }
+
+                    byte lbl = brLabels.ReadByte();
+
+                    TestImgs.Add(new DigitImage(pixels, lbl, numRows, numCols));
+                }
+
+                ifsImages.Close();
+                brImages.Close();
+                ifsLabels.Close();
+                brLabels.Close();
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                Console.ReadLine();
+            }
+        }
+
+        public void ReadTrainMNIST()
+        {
+            try
+            {
+                FileStream ifsLabels =
+                 new FileStream(@"C:\Users\cleist\BA\MNIST\train-labels.idx1-ubyte", FileMode.Open); // train labels
+                FileStream ifsImages =
+                 new FileStream(@"C:\Users\cleist\BA\MNIST\train-images.idx3-ubyte", FileMode.Open); // train images
+
+                BinaryReader brLabels = new BinaryReader(ifsLabels);
+                BinaryReader brImages = new BinaryReader(ifsImages);
+
+                int magic1 = BigEndianConverter.ReadBigInt32(brImages); // discard
+                int numImages = BigEndianConverter.ReadBigInt32(brImages);
+                int numRows = BigEndianConverter.ReadBigInt32(brImages);
+                int numCols = BigEndianConverter.ReadBigInt32(brImages);
+
+                int magic2 = BigEndianConverter.ReadBigInt32(brLabels);
+                int numLabels = BigEndianConverter.ReadBigInt32(brLabels);
+
+                byte[][] pixels = new byte[numRows][];
+                for (int i = 0; i < pixels.Length; ++i)
+                    pixels[i] = new byte[numCols];
+
+                // each image
+                for (int di = 0; di < 1000; ++di)
                 {
                     for (int i = 0; i < numRows; ++i)
                     {
@@ -65,8 +125,6 @@ namespace LicensPlateRecognition.Network
                     byte lbl = brLabels.ReadByte();
 
                     TrainingImgs.Add(new DigitImage(pixels, lbl, numRows, numCols));
-                    //DigitImage img = new DigitImage(pixels, lbl, numRows, numCols);
-                    //Console.WriteLine(img.ToString());
                 }
 
                 ifsImages.Close();
@@ -84,8 +142,9 @@ namespace LicensPlateRecognition.Network
 
     public class DigitImage
     {
-        public byte[][] Pixels { get; private set; }
-        public byte Label { get; private set; }
+        public double[][][] Pixels { get; private set; }
+        public double[] Label { get; private set; }
+        public byte integerLabel;
         public int numRows;
         public int numCols;
 
@@ -93,35 +152,72 @@ namespace LicensPlateRecognition.Network
         {
             this.numRows = numRows;
             this.numCols = numCols;
-            this.Pixels = new byte[numRows][];
-            for (int i = 0; i < this.Pixels.Length; ++i)
-                this.Pixels[i] = new byte[numCols];
+            this.Pixels = new double[numRows][][];
 
-            for (int i = 0; i < numRows; ++i)
+            for (int k = 0; k < 1; k++)
+            {
                 for (int j = 0; j < numCols; ++j)
-                    this.Pixels[i][j] = pixels[i][j];
+                {
+                    for (int i = 0; i < numRows; ++i)
+                    {
+                        // init Pixels
+                        if (k == 0)
+                        {
+                            if (j == 0)
+                            {
+                                this.Pixels[i] = new double[numCols][];
+                            }
+                            this.Pixels[i][j] = new double[1];
+                        }
+                        this.Pixels[i][j][k] = pixels[i][j];
+                    }
+                }
+            }
+            this.integerLabel = label;
 
-            this.Label = label;
+            this.Label = ConvertToBinaryClass(label);
         }
 
         public override string ToString()
         {
-            string s = "";
-            for (int i = 0; i < numRows; ++i)
+            //string s = "";
+            //for (int k = 0; k < 1; k++)
+            //{
+            //    for (int i = 0; i < numRows; ++i)
+            //    {
+            //        for (int j = 0; j < numCols; ++j)
+            //        {
+            //            if (this.Pixels[i][j][k] == 0)
+            //                s += "#"; // white
+            //            else if (this.Pixels[i][j][k] == 255)
+            //                s += " "; // black
+            //            else
+            //                s += "."; // gray
+            //        }
+            //        s += "\n";
+            //    }
+            //}
+
+            //s += this.Label.ToString();
+
+            return integerLabel.ToString();
+        }
+
+        public double[] ConvertToBinaryClass(byte label)
+        {
+            var binaryInt = new double[10];
+            for (int i = 0; i < binaryInt.Length; i++)
             {
-                for (int j = 0; j < numCols; ++j)
+                if (i == label)
                 {
-                    if (this.Pixels[i][j] == 0)
-                        s += "#"; // white
-                    else if (this.Pixels[i][j] == 255)
-                        s += " "; // black
-                    else
-                        s += "."; // gray
+                    binaryInt[i] = 1;
                 }
-                s += "\n";
+                else
+                {
+                    binaryInt[i] = 0;
+                }
             }
-            s += this.Label.ToString();
-            return s;
+            return binaryInt;
         }
     }
 }

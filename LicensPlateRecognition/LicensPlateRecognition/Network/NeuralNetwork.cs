@@ -14,17 +14,15 @@ namespace LicensPlateRecognition.Network
         public List<Layer.Layer> Layers { get; }
         public ExecMode ExecMode { get; }
         public double LearningRate { get; }
-        Random rnd;
 
         public NeuralNetwork(ExecMode execMode, double learningRate)
         {
             this.Layers = new List<Layer.Layer>();
             this.ExecMode = execMode;
             this.LearningRate = learningRate;
-            rnd = new Random();
         }
 
-        public void Learning(Dictionary<string, double[]> keyValuePairs, int outClass, int epochs, int miniBatchSize, string filePath)
+        public void Learning(Dictionary<string, double[]> keyValuePairs, int outClass, int epochs, int miniBatchSize, string filePath, MNIST mnist /* Mnist */)
         {
             TextWriter textWriter = new StreamWriter(filePath + "learning_report.csv");
 
@@ -35,17 +33,22 @@ namespace LicensPlateRecognition.Network
                 var recRate = 0.0;
 
                 // shuffle training input
-                var list = keyValuePairs.Keys.ToList();
-                var rndList = list.OrderBy(x => rnd.Next());
-                Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
+                //var list = keyValuePairs.Keys.ToList();
+                //var rnd = new Random();
+                //var rndList = list.OrderBy(x => rnd.Next()).ToList();
+                //Dictionary<string, double[]> rndKeyValuePairs = new Dictionary<string, double[]>();
 
-                foreach (var key in rndList)
-                {
-                    rndKeyValuePairs.Add(key, keyValuePairs[key]);
-                }
+                //foreach (var key in rndList)
+                //{
+                //    rndKeyValuePairs.Add(key, keyValuePairs[key]);
+                //}
+
+                // ------------------------ MNIST Dataset ------------------------
+                mnist.ShuffleTrainingImgs();
+                // ------------------------ MNIST Dataset ------------------------
 
                 // training data
-                for (int i = 0; i < rndKeyValuePairs.Count; i++)
+                for (int i = 0; i < /*rndKeyValuePairs.Count*/mnist.TrainingImgs.Count; i++)
                 {
                     double[] output = new double[outClass];
                     // forward pass
@@ -53,7 +56,7 @@ namespace LicensPlateRecognition.Network
                     {
                         if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
                         {
-                            this.Layers[j].FeedForward(new Bitmap(rndKeyValuePairs.ElementAt(i).Key), null, null);
+                            this.Layers[j].FeedForward(/*new Bitmap(rndKeyValuePairs.ElementAt(i).Key)*/null, null, /*null*/mnist.TrainingImgs[i].Pixels); // MNIST
                             continue;
                         }
 
@@ -123,7 +126,7 @@ namespace LicensPlateRecognition.Network
                         }
 
                         if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
-                            this.Layers[j].BackwardPass(rndKeyValuePairs.ElementAt(i).Value, null);
+                            this.Layers[j].BackwardPass(/*rndKeyValuePairs.ElementAt(i).Value*/mnist.TrainingImgs[i].Label, null); // MNIST
                     }
 
                     // update for every mini Batch
@@ -138,14 +141,14 @@ namespace LicensPlateRecognition.Network
                                 this.Layers[j].UpdateWeights(miniBatchSize);
                             }
                         }
-                        Console.WriteLine("\t" + "Weights updated after {0} inputs", i + 1);
+                        //Console.WriteLine("\t" + "Weights updated after {0} inputs", i + 1);
                     }
 
                     // recognition rate computation
-                    recognition += RecognitionRate(output, rndKeyValuePairs.ElementAt(i).Value);
+                    recognition += RecognitionRate(output, /*rndKeyValuePairs.ElementAt(i).Value*/mnist.TrainingImgs[i].Label); // MNIST
                 }
 
-                recRate = (double)recognition / (double)rndKeyValuePairs.Count;
+                recRate = (double)recognition / (double)/*rndKeyValuePairs.Count*/mnist.TrainingImgs.Count; // MNIST
                 Console.WriteLine("Recognition rate in epoch {0}: {1}", e + 1, recRate);
 
                 // save recognition rate to csv after each epoch
@@ -171,39 +174,39 @@ namespace LicensPlateRecognition.Network
             }
         }
 
-        public void Testing(int outClass, Dictionary<string, double[]> keyValuePairs)
+        public void Testing(int outClass, Dictionary<string, double[]> keyValuePairs, MNIST mnist /* Mnist */)
         {
             Console.WriteLine("Starting Test...");
 
             var recognition = 0;
 
-            for (int i = 0; i < keyValuePairs.Count; i++)
+            for (int i = 0; i < /*keyValuePairs.Count*/mnist.TestImgs.Count; i++)
             {
-                Console.WriteLine("\t Processing testdata {0} of {1}", i + 1, keyValuePairs.Count);
+                Console.WriteLine("\t Processing testdata {0} of {1}", i + 1, /*keyValuePairs.Count*/mnist.TestImgs.Count);
 
-                double[] output = this.ForwardPass(outClass, keyValuePairs.ElementAt(i).Key);
-                
+                double[] output = this.ForwardPass(outClass, /*keyValuePairs.ElementAt(i).Key*/null, mnist.TestImgs[i].Pixels);
+
                 // recognition rate computation
-                recognition += RecognitionRate(output, keyValuePairs.ElementAt(i).Value);
+                recognition += RecognitionRate(output, /*keyValuePairs.ElementAt(i).Value*/mnist.TestImgs[i].Label);
 
-                if (RecognitionRate(output, keyValuePairs.ElementAt(i).Value) == 0)
-                {
-                    Console.WriteLine("\t\t Testdata {0} wrong classified", keyValuePairs.ElementAt(i).Key);
-                }
+                //if (RecognitionRate(output, keyValuePairs.ElementAt(i).Value) == 0)
+                //{
+                //    Console.WriteLine("\t\t Testdata {0} wrong classified", keyValuePairs.ElementAt(i).Key);
+                //}
             }
 
-            var recRate = (double)recognition / (double)keyValuePairs.Count;
+            var recRate = (double)recognition / (double)/*keyValuePairs.Count*/mnist.TestImgs.Count;
             Console.WriteLine("Recognition rate in testdata: {0}", recRate);
         }
 
-        public double[] ForwardPass(int outClass, string input)
+        public double[] ForwardPass(int outClass, string input, double[][][] pixels)
         {
             double[] output = new double[outClass];
             for (int j = 0; j < this.Layers.Count; j++)
             {
                 if (this.Layers[j].GetType().Equals(typeof(InputLayer)))
                 {
-                    this.Layers[j].FeedForward(new Bitmap(input), null, null);
+                    this.Layers[j].FeedForward(/*new Bitmap(input)*/null, null, /*null*/pixels);
                     continue;
                 }
 
@@ -240,7 +243,7 @@ namespace LicensPlateRecognition.Network
                 if (this.Layers[j].GetType().Equals(typeof(OutputLayer)))
                 {
                     this.Layers[j].FeedForward(null, this.Layers[j - 1].FlatArray, null);
-                    output =  this.Layers[j].GetOutputArray();
+                    output = this.Layers[j].GetOutputArray();
                 }
             }
 

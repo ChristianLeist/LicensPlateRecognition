@@ -20,7 +20,11 @@ namespace LicensPlateRecognition.Layer
 
         public override void FeedForward(Image img, double[] flat, double[][][] matrix)
         {
-            LoadImage(ResizeImage(img));
+            //LoadImage(ResizeImage(img));
+
+            // ------------------------ MNIST Dataset ------------------------
+            this.ImgMatrix = matrix;
+            // ------------------------ MNIST Dataset ------------------------
         }
 
         public override void BackwardPass(double[] deltaArray, double[][][] deltaMatrix)
